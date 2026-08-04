@@ -18,20 +18,5 @@ services:
       retries: 5
       start_period: 20s
 
-  backend:
-    build: .
-    container_name: erbe-backend
-    restart: unless-stopped
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      DB_USERNAME: root
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-    ports:
-      - "8080:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
-
 volumes:
   mysql-data:
