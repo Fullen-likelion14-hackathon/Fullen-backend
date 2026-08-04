@@ -32,7 +32,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
