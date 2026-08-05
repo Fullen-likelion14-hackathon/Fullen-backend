@@ -1,0 +1,36 @@
+package com.erbe.erbebackend.domain.post.entity;
+
+import com.erbe.erbebackend.domain.journey.entity.Journey;
+import com.erbe.erbebackend.domain.nation.entity.Nation;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
+
+@Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String comment;
+
+    private Boolean isPublic;
+
+    private String imgUrl;
+
+    private LocalDate createdDate;
+
+    @ManyToOne
+    @JoinColumn(name = "nation_id")
+    private Nation nation;
+
+    @ManyToOne
+    @JoinColumn(name = "journey_id")
+    private Journey journey;
+}
