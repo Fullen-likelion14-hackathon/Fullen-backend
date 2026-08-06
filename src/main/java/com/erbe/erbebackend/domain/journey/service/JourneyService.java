@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -36,13 +37,15 @@ public class JourneyService {
         });
 
         // 본인의 여행이 아닌 다른 사람의 여행을 조회하려하면 X
-        if(journey.getUser().getId() != userId) {
+        if(Objects.equals(journey.getUser().getId(), userId)) {
             log.warn("[JourneyService] 여행 조회 실패 - 타인 여행 조회 시도 journeyId : {}, userId: {}", id, userId);
             throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
         }
 
         // DTO 변환
         JourneyResponse response = toJourneyResponse(journey);
+
+        log.info("[JourneyService] 여행 단일 조회 - 종료 : journeyId = {}",  response.getJourneyId());
 
         // DTO 반환
         return response;
@@ -60,7 +63,7 @@ public class JourneyService {
 
         // 여행 리스트 조회
         List<Journey> journeyList = journeyRepository.findAllByUser(user).orElseThrow(() -> {
-            log.warn("[JourneyService] 여행 조회 실패"); // TODO: 제대로 작성
+            log.warn("[JourneyService] 여행 조회 실패");
             return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
         });
 
@@ -71,6 +74,8 @@ public class JourneyService {
         for(Journey journey : journeyList) {
             responseList.add(toJourneyResponse(journey));
         }
+
+        log.info("[JourneyService] 모든 여행 조회 - 종료: 여행 응답 개수 = {}", responseList.size());
 
         // DTO 리스트 반환
         return responseList;
@@ -90,7 +95,7 @@ public class JourneyService {
         List<Journey> journeyList = journeyRepository.findAllByUser(user).orElseThrow(() -> {
             log.warn("[JourneyService] 여행을 찾을 수 없습니다.");
             return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
-        }); // TODO 제대로 구현
+        });
 
         // 반환용 리스트 생성
         List<JourneyMapPinResponse> responseList = new ArrayList<>();
