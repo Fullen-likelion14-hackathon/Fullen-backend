@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
-    List<Photo> findAllByPost(Post post);
+    List<Photo> findAllByPostOrderBySeqAsc(Post post);
 }
