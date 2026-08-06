@@ -1,11 +1,16 @@
 package com.erbe.erbebackend.domain.journey.service;
 
+import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyMapPinResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyResponse;
 import com.erbe.erbebackend.domain.journey.entity.Journey;
 import com.erbe.erbebackend.domain.journey.exception.JourneyErrorCode;
 import com.erbe.erbebackend.domain.journey.repository.JourneyRepository;
+import com.erbe.erbebackend.domain.nation.entity.Nation;
+import com.erbe.erbebackend.domain.nation.exception.NationErrorCode;
+import com.erbe.erbebackend.domain.nation.repository.NationRepository;
 import com.erbe.erbebackend.domain.user.entity.User;
+import com.erbe.erbebackend.domain.user.exception.UserErrorCode;
 import com.erbe.erbebackend.domain.user.repository.UserRepository;
 import com.erbe.erbebackend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +30,7 @@ public class JourneyService {
 
     private final JourneyRepository journeyRepository;
     private final UserRepository userRepository;
+    private final NationRepository nationRepository;
 
     public JourneyResponse findJourneyById(Long id, Long userId) {
 
@@ -58,7 +64,7 @@ public class JourneyService {
         // 유저 조회
         User user = userRepository.findById(userId).orElseThrow(() ->{
             log.warn("[JourneyService] 유저 조회 실패 - userId: {}", userId);
-            return null; // TODO: UserException - USER_NOT_FOUND 만들어지면 대체
+            return new CustomException(UserErrorCode.USER_NOT_FOUND);
         });
 
         // 여행 리스트 조회
@@ -88,7 +94,7 @@ public class JourneyService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.warn("[JourneyService] 유저를 찾을 수 없습니다. - userId : {}", userId);
-            return null; // TODO: UserException 생기면 제대로 구현
+            return new CustomException(UserErrorCode.USER_NOT_FOUND);
         });
 
         // 여행 리스트 불러오기
@@ -106,6 +112,49 @@ public class JourneyService {
         }
 
         return responseList;
+    }
+
+    public JourneyResponse createJourney(JourneyCreateRequest request, Long userId){
+
+        log.info("[JourneyService] 여행 생성 - 시작");
+
+        // 나라 찾기
+        Nation nation = nationRepository.findByKrName(request.getNationName()).orElseThrow(() ->{
+            log.warn("[JourneyService] 나라 조회 실패 - nationName : {}", request.getNationName());
+            return new CustomException(NationErrorCode.NATION_NOT_FOUND);
+        });
+
+        // 유저 찾기
+        User user = userRepository.findById(userId).orElseThrow(() ->{
+            log.warn("[JourneyService] 유저 조회 실패 - userId : {}", userId);
+            return new CustomException(UserErrorCode.USER_NOT_FOUND);
+        });
+
+        /*
+        새 여행 생성
+        위도 경도는 최초 생성 시, 그 나라의 대표 위도 경도값을 삽입
+        나중에, 1번째 포스트가 생성되면 업데이트 되는 구조
+         */
+        Journey journey = Journey.builder()
+                .type(request.getType())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .coverImgUrl(request.getImgUrl())
+                .nation(nation)
+                .user(user)
+                .longitude(nation.getLongitude())
+                .latitude(nation.getLatitude())
+                .build();
+
+        // 새 여행 DB에 저장
+        Journey savedJourney = journeyRepository.save(journey);
+
+        // 저장된 여행 dto로 변환
+        JourneyResponse response = toJourneyResponse(savedJourney);
+
+        // dto 반환
+        return response;
+
     }
 
     // DTO 변환 메소드
