@@ -2,6 +2,7 @@ package com.erbe.erbebackend.domain.post.entity;
 
 import com.erbe.erbebackend.domain.journey.entity.Journey;
 import com.erbe.erbebackend.domain.nation.entity.Nation;
+import com.erbe.erbebackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Post {
+public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

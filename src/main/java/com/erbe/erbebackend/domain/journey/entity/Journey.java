@@ -28,6 +28,8 @@ public class Journey extends BaseTimeEntity {
 
     private String coverImgUrl;
 
+    private String firstImgUrl;
+
     @ManyToOne
     @JoinColumn(name = "nation_id")
     private Nation nation;
@@ -39,4 +41,8 @@ public class Journey extends BaseTimeEntity {
     private Double longitude;
 
     private Double latitude;
+
+    public void updateFirstImageUrl(String firstImageUrl) {
+        this.firstImgUrl = firstImageUrl;
+    }
 }
