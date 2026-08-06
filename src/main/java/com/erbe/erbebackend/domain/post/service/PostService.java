@@ -39,6 +39,11 @@ public class PostService {
             return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
         });
 
+        if(!journey.getUser().getId().equals(userId)){
+            log.warn("[PostService] 타인 여행 게시물 작성 시도 - journeyId: {}, 시도 한 userId: {}", journeyId, userId);
+            throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
+        }
+
         // 첫 게시물인지 판단
         Boolean isExist = postRepository.existsByJourney(journey);
 
@@ -92,7 +97,7 @@ public class PostService {
         List<String> imgUrlList = new ArrayList<>();
 
         // 해당 게시물의 Photo 전부 가져오기
-        List<Photo> photoList = photoRepository.findAllByPost(post);
+        List<Photo> photoList = photoRepository.findAllByPostOrderBySeqAsc(post);
 
         // Photo 리스트 순회돌며 이미지 URL add
         for(Photo photo : photoList){
@@ -107,6 +112,7 @@ public class PostService {
                 .date(post.getCreatedDate())
                 .imgUrlList(imgUrlList)
                 .comment(post.getComment())
+                .isPublic(post.getIsPublic())
                 .build();
 
         return response;
