@@ -16,7 +16,13 @@ public class Nation {
 
     private String code;
 
-    private String name;
+    private String krName;
+
+    private String enName;
 
     private String imgUrl;
+
+    private Double longitude;
+
+    private Double latitude;
 }
