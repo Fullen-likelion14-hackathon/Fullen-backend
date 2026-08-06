@@ -8,6 +8,7 @@ import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,7 @@ public class JourneyController {
 
     @Operation(summary = "여행 생성 API", description = "요청을 기반으로, 새로운 여행을 생성하는 API")
     @PostMapping
-    public ResponseEntity<BaseResponse<JourneyResponse>> createJourneys(@RequestBody JourneyCreateRequest request, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public ResponseEntity<BaseResponse<JourneyResponse>> createJourneys(@Valid @RequestBody JourneyCreateRequest request, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         JourneyResponse response = journeyService.createJourney(request, customUserDetails.getId());
 
         return ResponseEntity
