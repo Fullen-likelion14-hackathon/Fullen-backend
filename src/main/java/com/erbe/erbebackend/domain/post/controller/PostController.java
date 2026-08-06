@@ -7,6 +7,7 @@ import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class PostController {
     public ResponseEntity<BaseResponse<PostResponse>> createPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long journeyId,
-            @RequestBody PostCreateRequest request
+            @Valid @RequestBody PostCreateRequest request
     ) {
         PostResponse response = postService.createPost(request, journeyId, customUserDetails.getId());
 
