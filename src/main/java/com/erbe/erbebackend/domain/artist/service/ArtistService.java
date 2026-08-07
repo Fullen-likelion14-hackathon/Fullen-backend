@@ -61,7 +61,7 @@ public class ArtistService {
 
         // 응답 세팅
         List<ArtistListResponse> list = new ArrayList<>();
-        for (Artist artist : artistRepository.findAll()) {
+        for (Artist artist : artistRepository.findAllByOrderByIdAsc()) {
             list.add(ArtistListResponse.builder()
                     .artistId(artist.getId())
                     .artistName(artist.getName())

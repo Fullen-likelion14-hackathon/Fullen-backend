@@ -19,7 +19,7 @@ public class ArtistSearchResponse {
     @Schema(description = "작가 이름", example = "빈센트 반 고흐")
     private String artistName;
 
-    @Schema(description = "작가 이미지 목록 (목록에서는 첫 번째 이미지를 썸네일로 사용)", example = "[\"https://s3.aws.com/testURL1\", \"https://s3.aws.com/testURL2\"]")
+    @Schema(description = "작가 이미지 목록 (seq 오름차순)", example = "[\"https://s3.aws.com/testURL1\", \"https://s3.aws.com/testURL2\"]")
     private List<String> imgUrls;
 
     @Schema(description = "작가 소개 한 줄 요약", example = "강렬한 색채와 두꺼운 붓질, 역동적인 곡선으로 감정과 움직임을 표현하는 화풍.")

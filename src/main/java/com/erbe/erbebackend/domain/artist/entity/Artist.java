@@ -27,7 +27,7 @@ public class Artist extends BaseTimeEntity {
     private String stylePrompt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nation_id")
+    @JoinColumn(name = "nation_id", nullable = false)
     private Nation nation;
 
     @Column(nullable = false, length = 100)
