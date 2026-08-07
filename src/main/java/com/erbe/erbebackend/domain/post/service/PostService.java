@@ -6,8 +6,10 @@ import com.erbe.erbebackend.domain.journey.repository.JourneyRepository;
 import com.erbe.erbebackend.domain.photo.entity.Photo;
 import com.erbe.erbebackend.domain.photo.repository.PhotoRepository;
 import com.erbe.erbebackend.domain.post.dto.request.PostCreateRequest;
+import com.erbe.erbebackend.domain.post.dto.response.PostCardResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostResponse;
 import com.erbe.erbebackend.domain.post.entity.Post;
+import com.erbe.erbebackend.domain.post.exception.PostErrorCode;
 import com.erbe.erbebackend.domain.post.repository.PostRepository;
 import com.erbe.erbebackend.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,10 @@ public class PostService {
     private final PhotoRepository photoRepository;
     private final JourneyRepository journeyRepository;
 
+    // 게시글 작성 로직
     public PostResponse createPost(PostCreateRequest request, Long journeyId, Long userId) {
+
+        log.info("[PostService] 게시글 작성 - 시작");
 
         // imgURLList
         List<String> imgUrlList = request.getImgUrlList();
@@ -87,10 +92,83 @@ public class PostService {
         // PostResponse 변환
         PostResponse response = toPostResponse(savedPost);
 
+        log.info("[PostService] 게시글 작성 - 종료 : postId={}", savedPost.getId());
+
         // DTO 반환
         return response;
     }
 
+    // 게시글 조회 로직
+    public PostResponse getPost(Long postId, Long userId){
+
+        log.info("[PostService] 게시글 조회 시작 - postId={}, userId={}", postId, userId);
+
+        // 포스트 엔티티 가져오기
+        Post post = postRepository.findById(postId).orElseThrow(() ->{
+            log.warn("[PostService] 게시글을 찾을 수 없습니다. - postId: {}", postId);
+            return new CustomException(PostErrorCode.POST_NOT_FOUND);
+        });
+
+        // 만약 Post의 isPublic이 false(비공개 게시물이라면) -> 게시물 주인인지 검증하여야함
+        if(!post.getIsPublic()){
+            if(!(post.getJourney().getUser().getId().equals(userId))){
+                log.warn("[PostService] 게시글 무단 조회 시도 - postId: {}, 무단 시도 userId: {}", postId, userId);
+                throw new CustomException(PostErrorCode.NOT_POST_OWNER);
+            }
+        }
+
+        // DTO 변환
+        PostResponse response = toPostResponse(post);
+
+        log.info("[PostService] 게시글 조회 - 종료 - postId={}, userId={}", postId, userId);
+
+        return response;
+    }
+
+    // 여행 별 게시물 조회 로직
+    public List<PostCardResponse> getPostListWithJourney(Long journeyId, Long userId){
+
+        log.info("[PostService] 여행 별 게시글 조회 - 시작 - journeyId={}, userId={}", journeyId, userId);
+
+        Journey journey = journeyRepository.findById(journeyId).orElseThrow(() ->{
+            log.warn("[PostService] 여행이 존재하지 않습니다 - journeyId: {}", journeyId);
+            return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
+        });
+
+        // 여행 주인이 아니라면? -> 무단 조회
+        if(!journey.getUser().getId().equals(userId)){
+            log.warn("[PostService] 여행 게시물 리스트 무단 조회 시도 - journeyId: {}, 무단 시도 userId: {}", journeyId, userId);
+            throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
+        }
+
+        // 검증이 끝났다면 정상적으로 조회 시작 -> 생성일시 순서대로 조회
+        List<Post> posts = postRepository.findAllByJourneyOrderByCreatedAtAsc(journey);
+
+        // DTO 담을 빈 리스트 선언
+        List<PostCardResponse> responseList = new ArrayList<>();
+
+        // 순회하며 DTO 변환
+        for(Post post : posts){
+            responseList.add(toPostCardResponse(post));
+        }
+
+        log.info("[PostService] 여행 별 게시글 조회 - 종료 - 게시글 개수={}", responseList.size());
+
+        return responseList;
+    }
+
+    // 게시물 리스트 형식으로 반환할때 사용하는 카드 DTO 변환 로직
+    private PostCardResponse toPostCardResponse(Post post){
+
+        PostCardResponse response = PostCardResponse.builder()
+                .postId(post.getId())
+                .thumbnailURL(post.getImgUrl())
+                .build();
+
+        return response;
+    }
+
+    // 일반적 게시물 응답 DTO 변환 로직
     private PostResponse toPostResponse(Post post){
 
         // DTO에 들어갈 Photo URL 리스트 생성
