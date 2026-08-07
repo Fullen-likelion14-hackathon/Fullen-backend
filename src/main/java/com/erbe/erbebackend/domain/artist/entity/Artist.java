@@ -1,29 +1,38 @@
 package com.erbe.erbebackend.domain.artist.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.erbe.erbebackend.domain.nation.entity.Nation;
+import com.erbe.erbebackend.global.common.BaseTimeEntity;
+import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Artist {
+@Table(name = "artists")
+public class Artist extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 30)
     private String name;
 
-    private LocalDate createdAt;
+    @Column(nullable = false, length = 300)
+    private String imgUrl;
 
+    @Column(nullable = false, length = 500)
     private String stylePrompt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nation_id")
+    private Nation nation;
 
+    @Column(nullable = false, length = 100)
+    private String introSummary; // 작가 소개 한 줄 요약
+
+    @Column(nullable = false, length = 2000)
+    private String description; // 작가 소개 전체 글
 }
