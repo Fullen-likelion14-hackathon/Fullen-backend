@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.post.controller;
 
 import com.erbe.erbebackend.domain.post.dto.request.PostCreateRequest;
+import com.erbe.erbebackend.domain.post.dto.response.PostCardResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostResponse;
 import com.erbe.erbebackend.domain.post.service.PostService;
 import com.erbe.erbebackend.global.common.BaseResponse;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,6 +37,33 @@ public class PostController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(BaseResponse.success(201, "게시물 생성 완료", response));
+    }
+
+    @Operation(summary = "게시글 조회 API", description = "게시글 ID 기반하여 조회하는 API입니다.")
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<BaseResponse<PostResponse>> getPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId
+    ){
+        PostResponse response = postService.getPost(postId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "게시물 조회 완료", response));
+    }
+
+    @Operation(summary = "여행 별 게시글 리스트 조회 API", description = "여행 ID 기반하여 게시글 리스트 조회하는 API입니다")
+    @GetMapping("/journeys/{journeyId}/posts")
+    public ResponseEntity<BaseResponse<List<PostCardResponse>>> getPosts(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long journeyId
+    ){
+        List<PostCardResponse> responseList = postService.getPostListWithJourney(journeyId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "여행의 게시물 리스트 조회 완료", responseList));
+
     }
 
 }
