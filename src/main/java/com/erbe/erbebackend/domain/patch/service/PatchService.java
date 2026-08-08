@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.patch.service;
 
 import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
+import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchSaveResponse;
 import com.erbe.erbebackend.domain.patch.entity.Patch;
 import com.erbe.erbebackend.domain.patch.exception.PatchErrorCode;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -56,5 +60,28 @@ public class PatchService {
                 .type(patch.getType())
                 .imgUrl(patch.getImgUrl())
                 .build();
+    }
+
+    // 패치 리스트 조회
+    public List<PatchListResponse> patchList(Long userId) {
+
+        // 사용자가 존재하는지 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        // 응답 세팅
+        List<PatchListResponse> list = new ArrayList<>();
+        for (Patch patch : patchRepository.findAllByUserOrderByIdDesc(user)) {
+            list.add(PatchListResponse.builder()
+                    .patchId(patch.getId())
+                    .type(patch.getType())
+                    .imgUrl(patch.getImgUrl())
+                    .build());
+        }
+
+        // 로그 출력
+        log.info("[PatchService] 패치 리스트 조회 성공");
+
+        return list;
     }
 }
