@@ -1,6 +1,8 @@
 package com.erbe.erbebackend.domain.patch.controller;
 
+import com.erbe.erbebackend.domain.patch.dto.request.PatchApplyRequest;
 import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
+import com.erbe.erbebackend.domain.patch.dto.response.PatchApplyResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchSaveResponse;
 import com.erbe.erbebackend.domain.patch.enums.PatchType;
@@ -66,5 +68,19 @@ public class PatchController {
 
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 삭제 성공", null));
+    }
+
+    // 패치 적용
+    @Operation(summary = "패치 적용 API", description = "사용자 본인 소유 가방에 패치를 3D로 적용후 저장하는 API")
+    @PostMapping("/patches/positions")
+    public ResponseEntity<BaseResponse<PatchApplyResponse>> applyPatch(
+            @Valid @RequestBody PatchApplyRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        PatchApplyResponse response = patchService.applyPatch(request, userDetails.getId());
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "패치 적용 후 저장 성공", response));
     }
 }
