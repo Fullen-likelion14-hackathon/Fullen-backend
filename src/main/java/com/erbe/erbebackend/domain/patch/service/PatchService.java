@@ -4,6 +4,7 @@ import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchSaveResponse;
 import com.erbe.erbebackend.domain.patch.entity.Patch;
+import com.erbe.erbebackend.domain.patch.enums.PatchType;
 import com.erbe.erbebackend.domain.patch.exception.PatchErrorCode;
 import com.erbe.erbebackend.domain.patch.repository.PatchRepository;
 import com.erbe.erbebackend.domain.user.entity.User;
@@ -63,7 +64,7 @@ public class PatchService {
     }
 
     // 패치 리스트 조회
-    public List<PatchListResponse> patchList(Long userId) {
+    public List<PatchListResponse> patchList(Long userId, PatchType type) {
 
         // 사용자가 존재하는지 조회
         User user = userRepository.findById(userId)
@@ -71,7 +72,7 @@ public class PatchService {
 
         // 응답 세팅
         List<PatchListResponse> list = new ArrayList<>();
-        for (Patch patch : patchRepository.findAllByUserOrderByIdDesc(user)) {
+        for (Patch patch : patchRepository.findAllByUserAndTypeOrderByIdDesc(user, type)) {
             list.add(PatchListResponse.builder()
                     .patchId(patch.getId())
                     .type(patch.getType())
