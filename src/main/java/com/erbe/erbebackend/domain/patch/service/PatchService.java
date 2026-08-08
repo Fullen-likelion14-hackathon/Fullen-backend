@@ -84,4 +84,25 @@ public class PatchService {
 
         return list;
     }
+
+    // 패치 삭제
+    @Transactional
+    public void patchDelete(Long patchId, Long userId) {
+
+        // 삭제할 패치가 존재하는지 조회
+        Patch patch = patchRepository.findById(patchId)
+                .orElseThrow(() -> new CustomException(PatchErrorCode.PATCH_NOT_FOUND));
+
+        // 로그인한 사용자의 패치가 맞는지 조회
+        if (!patch.getUser().getId().equals(userId)) {
+            log.warn("[PatchService] 사용자 본인 소유의 패치가 아닙니다.");
+            throw new CustomException(PatchErrorCode.PATCH_ACCESS_DENIED);
+        }
+
+        // DB 삭제
+        patchRepository.delete(patch);
+
+        // 로그 출력
+        log.info("[PatchService] 패치 삭제 성공");
+    }
 }

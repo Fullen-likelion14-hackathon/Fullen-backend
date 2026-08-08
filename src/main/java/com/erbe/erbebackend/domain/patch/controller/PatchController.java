@@ -51,4 +51,18 @@ public class PatchController {
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 리스트 조회 성공", response));
     }
+
+    // 패치 삭제
+    @Operation(summary = "패치 삭제 API", description = "사용자가 패치를 삭제할때 사용하는 API")
+    @DeleteMapping("/patches/{patch-id}")
+    public ResponseEntity<BaseResponse<Void>> deletePatch(
+            @PathVariable("patch-id") Long patchId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        patchService.patchDelete(patchId, userDetails.getId());
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 삭제 성공", null));
+    }
 }
