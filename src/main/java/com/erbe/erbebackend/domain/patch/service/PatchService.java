@@ -1,11 +1,18 @@
 package com.erbe.erbebackend.domain.patch.service;
 
+import com.erbe.erbebackend.domain.bag.entity.UserBag;
+import com.erbe.erbebackend.domain.bag.exception.UserBagErrorCode;
+import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
+import com.erbe.erbebackend.domain.patch.dto.request.PatchApplyRequest;
 import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
+import com.erbe.erbebackend.domain.patch.dto.response.PatchApplyResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchSaveResponse;
 import com.erbe.erbebackend.domain.patch.entity.Patch;
+import com.erbe.erbebackend.domain.patch.entity.PatchPosition;
 import com.erbe.erbebackend.domain.patch.enums.PatchType;
 import com.erbe.erbebackend.domain.patch.exception.PatchErrorCode;
+import com.erbe.erbebackend.domain.patch.repository.PatchPositionRepository;
 import com.erbe.erbebackend.domain.patch.repository.PatchRepository;
 import com.erbe.erbebackend.domain.user.entity.User;
 import com.erbe.erbebackend.domain.user.exception.UserErrorCode;
@@ -27,6 +34,8 @@ public class PatchService {
 
     private final PatchRepository patchRepository;
     private final UserRepository userRepository;
+    private final UserBagRepository userBagRepository;
+    private final PatchPositionRepository patchPositionRepository;
 
     // 패치 생성
     @Transactional
@@ -105,5 +114,61 @@ public class PatchService {
 
         // 로그 출력
         log.info("[PatchService] 패치 삭제 성공");
+    }
+
+    // 패치를 가방에 적용
+    @Transactional
+    public PatchApplyResponse applyPatch(PatchApplyRequest request, Long userId) {
+
+        // 사용자가 존재하는지 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        // 가방이 존재하는지 조회
+        UserBag userBag = userBagRepository.findById(request.getUserBagId())
+                .orElseThrow(() -> new CustomException(UserBagErrorCode.USER_BAG_NOT_FOUND));
+
+        // 패치가 존재하는지 조회
+        Patch patch = patchRepository.findById(request.getPatchId())
+                .orElseThrow(() -> new CustomException(PatchErrorCode.PATCH_NOT_FOUND));
+
+        // 사용자 본인 소유의 가방인지 확인
+        if (!userBag.getUser().getId().equals(userId)) {
+            log.warn("[PatchService] 사용자 본인 소유의 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 사용자 본인 소유의 패치인지 확인
+        if (!patch.getUser().getId().equals(userId)) {
+            log.warn("[PatchService] 사용자 본인 소유의 패치가 아닙니다.");
+            throw new CustomException(PatchErrorCode.PATCH_ACCESS_DENIED);
+        }
+
+        // 객체 생성
+        PatchPosition patchPosition = PatchPosition.builder()
+                .userBag(userBag)
+                .patch(patch)
+                .posX(request.getPosX())
+                .posY(request.getPosY())
+                .rotation(request.getRotation())
+                .build();
+
+        // DB 저장
+        patchPositionRepository.save(patchPosition);
+
+        // 로그 출력
+        log.info("[PatchService] 가방에 패치 적용 완료: patchPositionId={}", patchPosition.getId());
+
+        // 응답 세팅
+        return PatchApplyResponse.builder()
+                .patchPositionId(patchPosition.getId())
+                .userBagId(patchPosition.getUserBag().getId())
+                .patchId(patchPosition.getPatch().getId())
+                .imgUrl(patchPosition.getPatch().getImgUrl())
+                .posX(patchPosition.getPosX())
+                .posY(patchPosition.getPosY())
+                .rotation(patchPosition.getRotation())
+                .isEditable(patchPosition.getIsEditable())
+                .build();
     }
 }
