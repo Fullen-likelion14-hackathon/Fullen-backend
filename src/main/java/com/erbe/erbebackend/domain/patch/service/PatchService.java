@@ -109,6 +109,12 @@ public class PatchService {
             throw new CustomException(PatchErrorCode.PATCH_ACCESS_DENIED);
         }
 
+        // 패치가 사용중인지 확인
+        if (patchPositionRepository.existsByPatch(patch)) {
+            log.warn("[PatchService] 가방에 적용된 패치는 삭제할 수 없습니다.");
+            throw new CustomException(PatchErrorCode.PATCH_IN_USE);
+        }
+
         // DB 삭제
         patchRepository.delete(patch);
 

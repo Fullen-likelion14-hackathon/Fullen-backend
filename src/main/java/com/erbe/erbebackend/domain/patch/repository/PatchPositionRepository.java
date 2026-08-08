@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.patch.repository;
 
 import com.erbe.erbebackend.domain.bag.entity.UserBag;
+import com.erbe.erbebackend.domain.patch.entity.Patch;
 import com.erbe.erbebackend.domain.patch.entity.PatchPosition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,7 @@ public interface PatchPositionRepository extends JpaRepository<PatchPosition, Lo
 
     // 가방에 적용된 패치 목록 조회
     List<PatchPosition> findAllByUserBag(UserBag userBag);
+
+    // 패치가 가방에 달려있는지 조회
+    boolean existsByPatch(Patch patch);
 }
