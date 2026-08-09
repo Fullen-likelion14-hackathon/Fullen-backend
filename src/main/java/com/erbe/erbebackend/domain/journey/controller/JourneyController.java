@@ -67,7 +67,7 @@ public class JourneyController {
     }
 
     @Operation(summary = "주변 여행 조회 API", description = "특정 여행을 기준으로 좌측, 우측 경도에 위치한 여행을 반환하는 API.")
-    @GetMapping("/api/journeys/{journeyId}/nearby")
+    @GetMapping("/{journeyId}/nearby")
     public ResponseEntity<BaseResponse<JourneyAtMapListResponse>> getJourneyWithNearbyJourneys(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long journeyId
