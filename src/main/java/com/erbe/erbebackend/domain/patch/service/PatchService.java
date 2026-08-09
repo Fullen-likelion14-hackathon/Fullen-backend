@@ -126,10 +126,6 @@ public class PatchService {
     @Transactional
     public PatchApplyResponse applyPatch(PatchApplyRequest request, Long userId) {
 
-        // 사용자가 존재하는지 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-
         // 가방이 존재하는지 조회
         UserBag userBag = userBagRepository.findById(request.getUserBagId())
                 .orElseThrow(() -> new CustomException(UserBagErrorCode.USER_BAG_NOT_FOUND));
@@ -176,5 +172,39 @@ public class PatchService {
                 .rotation(patchPosition.getRotation())
                 .isEditable(patchPosition.getIsEditable())
                 .build();
+    }
+
+    // 가방에 부착된 패치 리스트 조회
+    public List<PatchApplyResponse> patchPositionList(Long userId, Long userBagId) {
+
+        // 가방이 존재하는지 조회
+        UserBag userBag = userBagRepository.findById(userBagId)
+                .orElseThrow(() -> new CustomException(UserBagErrorCode.USER_BAG_NOT_FOUND));
+
+        // 사용자 본인 소유의 가방인지 확인
+        if (!userBag.getUser().getId().equals(userId)) {
+            log.warn("[PatchService] 사용자 본인 소유의 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 응답 세팅
+        List<PatchApplyResponse> list = new ArrayList<>();
+        for (PatchPosition patchPosition : patchPositionRepository.findAllByUserBag(userBag)) {
+            list.add(PatchApplyResponse.builder()
+                            .patchPositionId(patchPosition.getId())
+                    .userBagId(patchPosition.getUserBag().getId())
+                    .patchId(patchPosition.getPatch().getId())
+                    .imgUrl(patchPosition.getPatch().getImgUrl())
+                    .posX(patchPosition.getPosX())
+                    .posY(patchPosition.getPosY())
+                    .rotation(patchPosition.getRotation())
+                    .isEditable(patchPosition.getIsEditable())
+                    .build());
+        }
+
+        // 로그 출력
+        log.info("[PatchService] 가방과 가방에 부착된 패치 조회 성공");
+
+        return list;
     }
 }

@@ -83,4 +83,18 @@ public class PatchController {
         // 응답 반환
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "패치 적용 후 저장 성공", response));
     }
+
+    // 가방과 거기에 적용된 패치를 보여주는 조회
+    @Operation(summary = "패치 적용 조회 API", description = "사용자 본인 소유 가방에 패치를 적용후 조회하는 API")
+    @GetMapping("/patches/positions")
+    public ResponseEntity<BaseResponse<List<PatchApplyResponse>>> patchPositionList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long userBagId) {
+
+        // service 호출
+        List<PatchApplyResponse> response = patchService.patchPositionList(userDetails.getId(), userBagId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 적용한 가방 조회 성공", response));
+    }
 }
