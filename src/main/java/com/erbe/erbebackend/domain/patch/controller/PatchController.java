@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.patch.controller;
 
 import com.erbe.erbebackend.domain.patch.dto.request.PatchApplyRequest;
+import com.erbe.erbebackend.domain.patch.dto.request.PatchPositionUpdateRequest;
 import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchApplyResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
@@ -96,5 +97,20 @@ public class PatchController {
 
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 적용한 가방 조회 성공", response));
+    }
+
+    // 가방에 부착된 패치 수정하는 API
+    @Operation(summary = "패치 위치 수정 API", description = "가방에 부착된 패치 위치 (x, y, 각도)를 수정하는 API")
+    @PutMapping("/patches/positions/{position-id}")
+    public ResponseEntity<BaseResponse<PatchApplyResponse>> patchPositionUpdate(
+            @PathVariable("position-id") Long patchPositionId,
+            @Valid @RequestBody PatchPositionUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        PatchApplyResponse response = patchService.updatePatchPosition(userDetails.getId(), patchPositionId, request);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 위치 수정 성공", response));
     }
 }

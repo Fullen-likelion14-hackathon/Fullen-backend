@@ -4,6 +4,7 @@ import com.erbe.erbebackend.domain.bag.entity.UserBag;
 import com.erbe.erbebackend.domain.bag.exception.UserBagErrorCode;
 import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
 import com.erbe.erbebackend.domain.patch.dto.request.PatchApplyRequest;
+import com.erbe.erbebackend.domain.patch.dto.request.PatchPositionUpdateRequest;
 import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchApplyResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
@@ -206,5 +207,44 @@ public class PatchService {
         log.info("[PatchService] 가방과 가방에 부착된 패치 조회 성공");
 
         return list;
+    }
+
+    // 패치 위치 수정
+    @Transactional
+    public PatchApplyResponse updatePatchPosition(Long userId, Long patchPositionId, PatchPositionUpdateRequest request) {
+
+        // 패치 위치가 존재하는지 확인
+        PatchPosition patchPosition = patchPositionRepository.findById(patchPositionId)
+                .orElseThrow(() -> new CustomException(PatchErrorCode.PATCH_POSITION_NOT_FOUND));
+
+        // 사용자 소유의 가방인지 조회
+        if (!patchPosition.getUserBag().getUser().getId().equals(userId)) {
+            log.warn("[PatchService] 사용자 본인 소유의 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 주문완료가 된 상태인지 조회
+        if (!patchPosition.getIsEditable()) {
+            log.warn("[PatchService] 주문 완료가 된 패치는 수정할 수 없습니다.");
+            throw new CustomException(PatchErrorCode.PATCH_POSITION_NOT_EDITABLE);
+        }
+
+        // 패치 위치 수정
+        patchPosition.updatePosition(request.getPosX(), request.getPosY(), request.getRotation());
+
+        // 로그 출력
+        log.info("[PatchService] 가방에 부착된 패치 위치 수정 완료: patchPositionId={}", patchPosition.getId());
+
+        // 응답 세팅
+        return PatchApplyResponse.builder()
+                .patchPositionId(patchPosition.getId())
+                .userBagId(patchPosition.getUserBag().getId())
+                .patchId(patchPosition.getPatch().getId())
+                .imgUrl(patchPosition.getPatch().getImgUrl())
+                .posX(patchPosition.getPosX())
+                .posY(patchPosition.getPosY())
+                .rotation(patchPosition.getRotation())
+                .isEditable(patchPosition.getIsEditable())
+                .build();
     }
 }
