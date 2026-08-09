@@ -78,6 +78,9 @@ public class PostService {
         // 게시물 저장
         Post savedPost = postRepository.save(post);
 
+        // Journey의 postCount 증가
+        journeyRepository.incrementPostCount(journeyId);
+
         // imgUrlList에 대해 순회를 돌며 사진 저장
         for(int i = 0; i < imgUrlList.size(); i++){
             Photo photo = Photo.builder()
