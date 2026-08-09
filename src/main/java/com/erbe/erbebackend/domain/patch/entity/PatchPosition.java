@@ -40,4 +40,11 @@ public class PatchPosition extends BaseTimeEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isEditable = true; // 수정 가능 여부 (주문 완료시 false로 변경)
+
+    // 패치 위치 업데이트 메서드
+    public void updatePosition(Double posX, Double posY, Double rotation) {
+        this.posX = posX;
+        this.posY = posY;
+        this.rotation = rotation;
+    }
 }

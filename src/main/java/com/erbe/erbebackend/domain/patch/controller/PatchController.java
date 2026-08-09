@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.patch.controller;
 
 import com.erbe.erbebackend.domain.patch.dto.request.PatchApplyRequest;
+import com.erbe.erbebackend.domain.patch.dto.request.PatchPositionUpdateRequest;
 import com.erbe.erbebackend.domain.patch.dto.request.PatchSaveRequest;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchApplyResponse;
 import com.erbe.erbebackend.domain.patch.dto.response.PatchListResponse;
@@ -82,5 +83,48 @@ public class PatchController {
 
         // 응답 반환
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "패치 적용 후 저장 성공", response));
+    }
+
+    // 가방과 거기에 적용된 패치를 보여주는 조회
+    @Operation(summary = "패치 적용 조회 API", description = "사용자 본인 소유 가방에 패치를 적용후 조회하는 API")
+    @GetMapping("/patches/positions")
+    public ResponseEntity<BaseResponse<List<PatchApplyResponse>>> patchPositionList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long userBagId) {
+
+        // service 호출
+        List<PatchApplyResponse> response = patchService.patchPositionList(userDetails.getId(), userBagId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 적용한 가방 조회 성공", response));
+    }
+
+    // 가방에 부착된 패치 수정하는 API
+    @Operation(summary = "패치 위치 수정 API", description = "가방에 부착된 패치 위치 (x, y, 각도)를 수정하는 API")
+    @PutMapping("/patches/positions/{position-id}")
+    public ResponseEntity<BaseResponse<PatchApplyResponse>> patchPositionUpdate(
+            @PathVariable("position-id") Long patchPositionId,
+            @Valid @RequestBody PatchPositionUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        PatchApplyResponse response = patchService.updatePatchPosition(userDetails.getId(), patchPositionId, request);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 위치 수정 성공", response));
+    }
+
+    // 가방에 부착된 패치 삭제하는 API
+    @Operation(summary = "패치 위치 삭제 API", description = "가방에 부착된 패치를 삭제하는 API(패치 자체를 삭제하는것이 아닌 패치 위치를 삭제하는 API)")
+    @DeleteMapping("/patches/positions/{position-id}")
+    public ResponseEntity<BaseResponse<Void>> deletePatchPosition(
+            @PathVariable("position-id") Long patchPositionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        patchService.patchPositionDelete(userDetails.getId(), patchPositionId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "가방에 부착된 패치 삭제 성공", null));
     }
 }
