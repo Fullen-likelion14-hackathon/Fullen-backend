@@ -48,6 +48,12 @@ public class PostService {
         // imgURLList
         List<String> imgUrlList = request.getImgUrlList();
 
+        // 유저 유효성 검사 - jwt 토큰으로 가능하지만 혹시 모르니 예외처리 추가
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("[PostService] 유저를 찾을 수 없습니다 - userId = {}", userId);
+            return new CustomException(UserErrorCode.USER_NOT_FOUND);
+        });
+
         Journey journey = journeyRepository.findById(journeyId).orElseThrow(() ->{
             log.warn("[PostService] 여행 조회 실패 - journeyId: {}", journeyId);
             return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
@@ -82,7 +88,7 @@ public class PostService {
                 .imgUrl(firstImgURL)
                 .nation(journey.getNation())
                 .journey(journey)
-                .user(userRepository.findById(userId).get())
+                .user(user)
                 .photoCount(imgUrlList.size())
                 .build();
 
