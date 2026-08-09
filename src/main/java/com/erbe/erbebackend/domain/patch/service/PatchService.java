@@ -247,4 +247,31 @@ public class PatchService {
                 .isEditable(patchPosition.getIsEditable())
                 .build();
     }
+
+    // 패치 위치 삭제
+    @Transactional
+    public void patchPositionDelete(Long userId, Long patchPositionId) {
+
+        // 패치 위치가 존재하는지 확인
+        PatchPosition patchPosition = patchPositionRepository.findById(patchPositionId)
+                .orElseThrow(() -> new CustomException(PatchErrorCode.PATCH_POSITION_NOT_FOUND));
+
+        // 사용자 소유의 가방인지 조회
+        if (!patchPosition.getUserBag().getUser().getId().equals(userId)) {
+            log.warn("[PatchService] 사용자 소유의 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 주문완료가 된 상태인지 조회
+        if (!patchPosition.getIsEditable()) {
+            log.warn("[PatchService] 주문 완료가 된 패치는 삭제할 수 없습니다.");
+            throw new CustomException(PatchErrorCode.PATCH_POSITION_NOT_EDITABLE);
+        }
+
+        // DB 삭제
+        patchPositionRepository.delete(patchPosition);
+
+        // 로그 출력
+        log.info("[PatchService] 패치 위치 삭제 성공");
+    }
 }

@@ -113,4 +113,18 @@ public class PatchController {
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "패치 위치 수정 성공", response));
     }
+
+    // 가방에 부착된 패치 삭제하는 API
+    @Operation(summary = "패치 위치 삭제 API", description = "가방에 부착된 패치를 삭제하는 API(패치 자체를 삭제하는것이 아닌 패치 위치를 삭제하는 API)")
+    @DeleteMapping("/patches/positions/{position-id}")
+    public ResponseEntity<BaseResponse<Void>> deletePatchPosition(
+            @PathVariable("position-id") Long patchPositionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        patchService.patchPositionDelete(userDetails.getId(), patchPositionId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "가방에 부착된 패치 삭제 성공", null));
+    }
 }
