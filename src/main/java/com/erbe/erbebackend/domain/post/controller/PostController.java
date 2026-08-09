@@ -2,14 +2,17 @@ package com.erbe.erbebackend.domain.post.controller;
 
 import com.erbe.erbebackend.domain.post.dto.request.PostCreateRequest;
 import com.erbe.erbebackend.domain.post.dto.response.PostCardResponse;
+import com.erbe.erbebackend.domain.post.dto.response.PostPreviewResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostResponse;
 import com.erbe.erbebackend.domain.post.service.PostService;
 import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.QueryParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,6 +67,32 @@ public class PostController {
                 .status(HttpStatus.OK)
                 .body(BaseResponse.success(200, "여행의 게시물 리스트 조회 완료", responseList));
 
+    }
+
+    @Operation(summary = "게시물 아카이브 조회 API", description = "타 사용자의 공개 게시물 리스트를 조회하는 API")
+    @GetMapping("/posts/archive")
+    public ResponseEntity<BaseResponse<List<PostCardResponse>>> getPostsArchive(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam String scope
+    ){
+        List<PostCardResponse> responseList = postService.getPostsArchive(scope, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "게시물 아카이브 조회 완료", responseList));
+    }
+
+    @Operation(summary = "게시물 미리보기 API", description = "게시물 아카이브 내에서, 타 사용자 게시물 조회 시 중간 미리보기 반환하는 API")
+    @GetMapping("/posts/{postId}/preview")
+    public ResponseEntity<BaseResponse<PostPreviewResponse>> getPostPreview(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId
+    ){
+        PostPreviewResponse response = postService.getPostPreview(postId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "게시물 미리보기 조회 완료", response));
     }
 
 }
