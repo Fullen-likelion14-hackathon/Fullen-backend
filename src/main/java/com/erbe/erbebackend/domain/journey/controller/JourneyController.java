@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.journey.controller;
 
 import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
+import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapListResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyMapPinResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyResponse;
 import com.erbe.erbebackend.domain.journey.service.JourneyService;
@@ -63,5 +64,18 @@ public class JourneyController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(BaseResponse.success(201, "여행 생성 성공", response));
+    }
+
+    @Operation(summary = "주변 여행 조회 API", description = "특정 여행을 기준으로 좌측, 우측 경도에 위치한 여행을 반환하는 API.")
+    @GetMapping("/api/journeys/{journeyId}/nearby")
+    public ResponseEntity<BaseResponse<JourneyAtMapListResponse>> getJourneyWithNearbyJourneys(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long journeyId
+    ){
+        JourneyAtMapListResponse responseList = journeyService.getJourneyWithNearbyJourneys(journeyId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200,"주변 여행 조회 성공", responseList));
     }
 }

@@ -1,6 +1,8 @@
 package com.erbe.erbebackend.domain.journey.service;
 
 import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
+import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapListResponse;
+import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyMapPinResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyResponse;
 import com.erbe.erbebackend.domain.journey.entity.Journey;
@@ -157,6 +159,65 @@ public class JourneyService {
 
     }
 
+    // 지도 내에서, 해당 핀의 여행과 가까운 2개의 여행을 찾아, 총 3개의 여행 정보를 반환해주는 로직
+    public JourneyAtMapListResponse getJourneyWithNearbyJourneys(Long journeyId, Long userId) {
+
+        log.info("[JourneyService] 가장 가까운 여행 찾기 - 시작 - journeyId = {}, userId = {}", journeyId, userId);
+
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("[JourneyService] 유저를 찾을 수 없습니다 - userId : {}", userId);
+            return new CustomException(UserErrorCode.USER_NOT_FOUND);
+        });
+
+        // 1. 일단 Journey 가져오기
+        Journey journey = journeyRepository.findById(journeyId).orElseThrow(() -> {
+            log.warn("[JourneyService] 여행을 찾을 수 없습니다 - journeyId: {}", journeyId);
+            return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
+        });
+
+        // 해당 여행의 당사자가 아니라면 조회 불가능
+        if(!journey.getUser().getId().equals(userId)) {
+            log.warn("[JourneyService] 여행 무단 조회 시도 - journeyId = {}, 무단 시도 userId = {}", journeyId, userId);
+            throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
+        }
+
+        // 서~동으로 경도에 따라 불러오며 인덱스 붙이기 + 같은 경도일경우, ID 기반으로 좌우 판별
+        List<Journey> journeyList = journeyRepository.findAllByUserOrderByLongitudeAscIdAsc(user);
+
+        // 여행 리스트의 총 사이즈
+        int totalSize = journeyList.size();
+
+        // 여행 리스트의 총 사이즈 == 1 -> 1개라면 가운데 여행만 표시하고, 양 옆은 표시 X
+        if(totalSize == 1) {
+            return JourneyAtMapListResponse.builder()
+                    .leftJourney(null)
+                    .centerJourney(toJourneyAtMapResponse(journey))
+                    .rightJourney(null)
+                    .build();
+        }
+
+        // 여행 리스트에서의 요청 ID를 가진 여행이 인덱스 몇 번에 위치해있는지
+        int centerIndex = journeyList.indexOf(journey);
+
+        // 순회하도록 설정해야하므로 % totalSize
+        int leftIndex = (centerIndex - 1 + totalSize) % totalSize;
+        int rightIndex = (centerIndex + 1) % totalSize;
+
+        // 좌/우측 여행 가져오기
+        Journey leftJourney = journeyList.get(leftIndex);
+        Journey rightJourney = journeyList.get(rightIndex);
+
+        // 반환용 DTO 변환
+        JourneyAtMapListResponse responseList = JourneyAtMapListResponse.builder()
+                .leftJourney(toJourneyAtMapResponse(leftJourney))
+                .centerJourney(toJourneyAtMapResponse(journey))
+                .rightJourney(toJourneyAtMapResponse(rightJourney))
+                .build();
+
+        // DTO 반환
+        return responseList;
+    }
+
     // DTO 변환 메소드
     private JourneyResponse toJourneyResponse(Journey journey){
         return JourneyResponse.builder()
@@ -178,6 +239,20 @@ public class JourneyService {
                 .journeyId(journey.getId())
                 .longitude(journey.getLongitude())
                 .latitude(journey.getLatitude())
+                .build();
+    }
+
+    // 맵 내에서 확인 가능한 여행 정보 DTO 변환 메소드
+    private JourneyAtMapResponse toJourneyAtMapResponse(Journey journey){
+        return JourneyAtMapResponse.builder()
+                .journeyId(journey.getId())
+                .nationKRName(journey.getNation().getKrName())
+                .type(journey.getType())
+                .thumbnailUrl(journey.getFirstImgUrl())
+                .startDate(journey.getStartDate())
+                .endDate(journey.getEndDate())
+                .postCount(journey.getPostCount())
+                .flagImgUrl(journey.getNation().getImgUrl())
                 .build();
     }
 }

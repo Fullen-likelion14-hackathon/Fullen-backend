@@ -30,6 +30,9 @@ public class Journey extends BaseTimeEntity {
 
     private String firstImgUrl;
 
+    // 반정규화 필드이지만, 여행 조회때마다 PostRepository로 쿼리를 보내는 것보다 효율적이라 판단함
+    private int postCount;
+
     @ManyToOne
     @JoinColumn(name = "nation_id")
     private Nation nation;
@@ -44,5 +47,13 @@ public class Journey extends BaseTimeEntity {
 
     public void updateFirstImageUrl(String firstImageUrl) {
         this.firstImgUrl = firstImageUrl;
+    }
+
+    public void incrementPostCount() {
+        this.postCount++;
+    }
+
+    public void decreasePostCount() {
+        this.postCount--;
     }
 }

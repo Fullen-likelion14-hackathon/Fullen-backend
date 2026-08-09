@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface JourneyRepository extends JpaRepository<Journey, Long> {
     Optional<List<Journey>> findAllByUser(User user);
+
+    List<Journey> findAllByUserOrderByLongitudeAscIdAsc(User user);
 }
