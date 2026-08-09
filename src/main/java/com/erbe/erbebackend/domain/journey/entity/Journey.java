@@ -48,12 +48,4 @@ public class Journey extends BaseTimeEntity {
     public void updateFirstImageUrl(String firstImageUrl) {
         this.firstImgUrl = firstImageUrl;
     }
-
-    public void incrementPostCount() {
-        this.postCount++;
-    }
-
-    public void decreasePostCount() {
-        this.postCount--;
-    }
 }
