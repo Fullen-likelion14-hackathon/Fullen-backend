@@ -253,6 +253,8 @@ public class JourneyService {
                 .endDate(journey.getEndDate())
                 .postCount(journey.getPostCount())
                 .flagImgUrl(journey.getNation().getImgUrl())
+                .latitude(journey.getLatitude())
+                .longitude(journey.getLongitude())
                 .build();
     }
 }

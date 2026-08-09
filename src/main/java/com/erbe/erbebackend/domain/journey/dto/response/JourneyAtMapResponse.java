@@ -35,6 +35,12 @@ public class JourneyAtMapResponse {
     @Schema(description = "게시물 개수", example = "10")
     private int postCount;
 
+    @Schema(description = "위도")
+    private Double latitude;
+
+    @Schema(description = "경도")
+    private Double longitude;
+
     @Schema(description = "국기 이미지 URL", example = "https://s3.aws.com/testURL1")
     private String flagImgUrl;
 }
