@@ -4,6 +4,7 @@ import com.erbe.erbebackend.domain.journey.entity.Journey;
 import com.erbe.erbebackend.domain.journey.exception.JourneyErrorCode;
 import com.erbe.erbebackend.domain.journey.repository.JourneyRepository;
 import com.erbe.erbebackend.domain.nation.entity.Nation;
+import com.erbe.erbebackend.domain.nation.exception.NationErrorCode;
 import com.erbe.erbebackend.domain.nation.repository.NationRepository;
 import com.erbe.erbebackend.domain.photo.entity.Photo;
 import com.erbe.erbebackend.domain.photo.repository.PhotoRepository;
@@ -197,7 +198,10 @@ public class PostService {
         if (scope.equals("GLOBAL")) {
             posts = postRepository.findByUserNotAndIsPublicAndCreatedDateGreaterThanEqual(user, true, basisDate);
         } else {
-            Nation nation = nationRepository.findByEnName(scope); // TODO 국가 코드로 요청할지 아님 영문 국가 이름 쓸지 나중에 정하기
+            Nation nation = nationRepository.findByEnName(scope).orElseThrow(() -> {
+                log.warn("[PostService] 국가를 찾을 수 없습니다. - nation: {}", scope);
+                return new CustomException(NationErrorCode.NATION_NOT_FOUND);
+            }); // TODO 국가 코드로 요청할지 아님 영문 국가 이름 쓸지 나중에 정하기
             posts = postRepository.findByUserNotAndIsPublicAndNationAndCreatedDateGreaterThanEqual(user, true, nation, basisDate);
         }
 
@@ -270,6 +274,7 @@ public class PostService {
         // 빌더로 response 생성 후 반환
         PostResponse response = PostResponse.builder()
                 .postId(post.getId())
+                .nationFlagURL(post.getNation().getImgUrl())
                 .nationKRName(post.getNation().getKrName())
                 .journeyType(post.getJourney().getType())
                 .date(post.getCreatedDate())
