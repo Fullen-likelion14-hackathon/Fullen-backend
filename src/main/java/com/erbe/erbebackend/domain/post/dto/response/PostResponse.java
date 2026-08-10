@@ -24,7 +24,7 @@ public class PostResponse {
     @Schema(description = "여행 타입", example = "여름맞이 가족여행")
     private String journeyType;
 
-    @Schema(description = "포스트 날짜", example = "2026.08.04")
+    @Schema(description = "포스트 날짜", example = "2026-08-04")
     private LocalDate date;
 
     @Schema(description = "포스트 이미지 URL 리스트", example = "[\"https://s3.aws.com/testURL1\", \"https://s3.aws.com//testURL2\"]")
