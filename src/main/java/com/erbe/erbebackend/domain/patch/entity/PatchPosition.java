@@ -27,7 +27,7 @@ public class PatchPosition extends BaseTimeEntity {
     private UserBag userBag;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patch_id", nullable = false)
+    @JoinColumn(name = "patch_id") // 1:1 커스텀 요청할때는 패치가 아직 없기 때문에 null 허용
     private Patch patch;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,5 +63,10 @@ public class PatchPosition extends BaseTimeEntity {
     public void confirmOrder(PatchOrder patchOrder) {
         this.patchOrder = patchOrder;
         this.isEditable = false;
+    }
+
+    // 패치 연결 (1:1 커스텀 제작 완료 후 호출)
+    public void assignPatch(Patch patch) {
+        this.patch = patch;
     }
 }
