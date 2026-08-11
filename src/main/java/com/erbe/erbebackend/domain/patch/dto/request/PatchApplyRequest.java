@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.patch.dto.request;
 
 import com.erbe.erbebackend.domain.bag.entity.UserBag;
+import com.erbe.erbebackend.domain.bag.enums.BagSide;
 import com.erbe.erbebackend.domain.patch.enums.PatchType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -22,6 +23,10 @@ public class PatchApplyRequest {
     @Schema(description = "패치 고유번호", example = "1")
     @NotNull(message = "패치 고유번호는 필수 입력값입니다.")
     private Long patchId;
+
+    @Schema(description = "가방 면 (앞면/뒷면)", example = "FRONT")
+    @NotNull(message = "가방 면은 필수 입력값입니다.")
+    private BagSide side;
 
     @Schema(description = "x 좌표", example = "1.1")
     @NotNull(message = "x 좌표는 필수 입력값입니다.")
