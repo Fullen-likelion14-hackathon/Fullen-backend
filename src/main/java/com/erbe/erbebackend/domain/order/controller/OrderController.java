@@ -4,6 +4,7 @@ import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
+import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
 import com.erbe.erbebackend.domain.order.service.OrderService;
 import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
@@ -14,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,5 +51,19 @@ public class OrderController {
 
         // 응답 반환
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "1:1 커스텀 요청 주문 완료", response));
+    }
+
+    // 1:1 커스텀 요청 주문 상세조회
+    @Operation(summary = "1:1 커스텀 요청 주문 상세조회 API", description = "사용자가 신청한 1:1 커스텀 주문 상세 내용을 조회하는 API")
+    @GetMapping("/orders/premiums/{premium-id}")
+    public ResponseEntity<BaseResponse<PremiumOrderSearchResponse>> premiumOrderSearch(
+            @PathVariable("premium-id") Long premiumOrderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        PremiumOrderSearchResponse response = orderService.premiumOrderSearch(premiumOrderId, userDetails.getId());
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "1:1 커스텀 요청 상세조회 성공", response));
     }
 }

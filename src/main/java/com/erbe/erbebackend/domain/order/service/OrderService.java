@@ -10,6 +10,7 @@ import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
+import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
 import com.erbe.erbebackend.domain.order.entity.PatchOrder;
 import com.erbe.erbebackend.domain.order.entity.PremiumOrder;
 import com.erbe.erbebackend.domain.order.enums.OrderStatus;
@@ -175,6 +176,33 @@ public class OrderService {
                 .posY(patchPosition.getPosY())
                 .rotation(patchPosition.getRotation())
                 .orderStatus(premiumOrder.getOrderStatus())
+                .build();
+    }
+
+    // 1:1 커스텀 요청 상세조회
+    public PremiumOrderSearchResponse premiumOrderSearch(Long premiumOrderId, Long userId) {
+
+        // 1:1 커스텀 요청 주문이 존재하는지 조회
+        PremiumOrder premiumOrder = premiumOrderRepository.findById(premiumOrderId)
+                .orElseThrow(() -> new CustomException(OrderErrorCode.PREMIUM_ORDER_NOT_FOUND));
+
+        // 본인이 신청한 1:1 요청인지 확인
+        if (!premiumOrder.getUser().getId().equals(userId)) {
+            log.warn("[OrderService] 본인이 신청한 1:1 커스텀 요청 주문이 아닙니다.");
+            throw new CustomException(OrderErrorCode.PREMIUM_ORDER_ACCESS_DENIED);
+        }
+
+        // 로그 출력
+        log.info("[OrderService] 1:1 커스텀 요청 주문 상세조회 성공: premiumOrderId={}", premiumOrder.getId());
+
+        // 응답 세팅
+        return PremiumOrderSearchResponse.builder()
+                .premiumOrderId(premiumOrder.getId())
+                .photoImgUrl(premiumOrder.getPhoto().getImgUrl())
+                .artistName(premiumOrder.getArtist().getName())
+                .artistImgUrl(premiumOrder.getArtist().getImgUrl())
+                .introSummary(premiumOrder.getArtist().getIntroSummary())
+                .requestDetail(premiumOrder.getRequestDetail())
                 .build();
     }
 }
