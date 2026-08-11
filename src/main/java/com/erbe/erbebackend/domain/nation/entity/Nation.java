@@ -27,5 +27,7 @@ public class Nation {
 
     private Double latitude;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Continent continent;
 }
