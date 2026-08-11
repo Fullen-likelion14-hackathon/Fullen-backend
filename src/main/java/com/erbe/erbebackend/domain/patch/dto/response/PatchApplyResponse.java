@@ -1,5 +1,6 @@
 package com.erbe.erbebackend.domain.patch.dto.response;
 
+import com.erbe.erbebackend.domain.bag.enums.BagSide;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,9 @@ public class PatchApplyResponse {
 
     @Schema(description = "패치 이미지 URL", example = "https://s3.aws.com/patch/xxx.png")
     private String imgUrl;
+
+    @Schema(description = "가방 면 (앞면/뒷면)", example = "FRONT")
+    private BagSide side;
 
     @Schema(description = "x 좌표", example = "1.1")
     private Double posX;
