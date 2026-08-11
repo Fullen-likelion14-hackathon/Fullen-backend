@@ -1,5 +1,6 @@
 package com.erbe.erbebackend.domain.nation.entity;
 
+import com.erbe.erbebackend.domain.nation.enums.Continent;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,4 +26,6 @@ public class Nation {
     private Double longitude;
 
     private Double latitude;
+
+    private Continent continent;
 }
