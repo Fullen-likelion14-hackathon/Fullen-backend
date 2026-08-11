@@ -1,0 +1,92 @@
+package com.erbe.erbebackend.domain.order.service;
+
+import com.erbe.erbebackend.domain.bag.entity.UserBag;
+import com.erbe.erbebackend.domain.bag.exception.UserBagErrorCode;
+import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
+import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
+import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
+import com.erbe.erbebackend.domain.order.entity.PatchOrder;
+import com.erbe.erbebackend.domain.order.enums.OrderStatus;
+import com.erbe.erbebackend.domain.order.exception.OrderErrorCode;
+import com.erbe.erbebackend.domain.order.repository.PatchOrderRepository;
+import com.erbe.erbebackend.domain.patch.entity.PatchPosition;
+import com.erbe.erbebackend.domain.patch.repository.PatchPositionRepository;
+import com.erbe.erbebackend.domain.user.entity.User;
+import com.erbe.erbebackend.domain.user.exception.UserErrorCode;
+import com.erbe.erbebackend.domain.user.repository.UserRepository;
+import com.erbe.erbebackend.global.exception.CustomException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Slf4j
+public class OrderService {
+
+    private final PatchOrderRepository patchOrderRepository;
+    private final UserBagRepository userBagRepository;
+    private final PatchPositionRepository patchPositionRepository;
+    private final UserRepository userRepository;
+
+    // 가방에 패치 부착하고 주문
+    @Transactional
+    public PatchOrderResponse patchOrder(PatchOrderRequest request, Long userId) {
+
+        // 사용자가 존재하는지 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        // 가방이 존재하는지 조회
+        UserBag userBag = userBagRepository.findById(request.getUserBagId())
+                .orElseThrow(() -> new CustomException(UserBagErrorCode.USER_BAG_NOT_FOUND));
+
+        // 사용자 본인 소유의 가방인지 확인
+        if (!userBag.getUser().getId().equals(userId)) {
+            log.warn("[OrderService] 본인 소유의 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 주문이 안된 패치가 있는지 조회
+        List<PatchPosition> patchPosition = patchPositionRepository.findAllByUserBagAndIsEditableTrue(userBag);
+
+        // 주문할 패치가 있는지 조회
+        if (patchPosition.isEmpty()) {
+            log.warn("[OrderService] 가방에 부착된 패치가 없어 주문할 수 없습니다.");
+            throw new CustomException(OrderErrorCode.NO_PATCH_ATTACH);
+        }
+
+        // 객체 생성
+        PatchOrder patchOrder = PatchOrder.builder()
+                .user(user)
+                .userBag(userBag)
+                .orderStatus(OrderStatus.DELIVERED) // 주문하면 배송 완료 상태로 변경
+                .build();
+
+        // DB 저장
+        patchOrderRepository.save(patchOrder);
+
+        // 주문이 안된 패치를 주문 완료로 변경
+        for (PatchPosition position : patchPosition) {
+            position.confirmOrder(patchOrder);
+        }
+
+        // 로그 출력
+        log.info("[OrderService] 패치 주문에 성공했습니다: patchOrderId={}", patchOrder.getId());
+
+        // 응답 세팅
+        return PatchOrderResponse.builder()
+                .patchOrderId(patchOrder.getId())
+                .userBagId(userBag.getId())
+                .orderStatus(patchOrder.getOrderStatus())
+                .bagName(userBag.getBagProduct().getBag().getName())
+                .bagSize(userBag.getBagProduct().getBag().getSize())
+                .bagFrontImgUrl(userBag.getBagProduct().getBag().getFrontImgUrl())
+                .bagBackImgUrl(userBag.getBagProduct().getBag().getBackImgUrl())
+                .build();
+    }
+}
