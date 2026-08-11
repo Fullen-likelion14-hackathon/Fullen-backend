@@ -4,6 +4,7 @@ import com.erbe.erbebackend.domain.bag.enums.BagSide;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class PremiumOrderRequest {
 
     @Schema(description = "사진 설명 및 요청사항", example = "여행한 나라의 이름이 패치에서 가장 잘 보이도록 크게 표현되었으면 좋겠습니다.")
     @NotBlank(message = "요청사항은 필수 입력값입니다.")
+    @Size(max = 3000, message = "요청사항은 3000자 이하여야 합니다.")
     private String requestDetail;
 
     @Schema(description = "가방 면 (앞면/뒷면)", example = "FRONT")

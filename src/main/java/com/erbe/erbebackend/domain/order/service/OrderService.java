@@ -65,7 +65,7 @@ public class OrderService {
         }
 
         // 주문이 안된 패치가 있는지 조회
-        List<PatchPosition> patchPosition = patchPositionRepository.findAllByUserBagAndIsEditableTrue(userBag);
+        List<PatchPosition> patchPosition = patchPositionRepository.findAllByUserBagAndIsEditableTrueAndPatchIsNotNull(userBag);
 
         // 주문할 패치가 있는지 조회
         if (patchPosition.isEmpty()) {
