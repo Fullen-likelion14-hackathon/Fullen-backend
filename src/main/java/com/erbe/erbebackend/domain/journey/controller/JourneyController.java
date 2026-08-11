@@ -2,6 +2,7 @@ package com.erbe.erbebackend.domain.journey.controller;
 
 import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapListResponse;
+import com.erbe.erbebackend.domain.journey.dto.response.JourneyByContinentResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyMapPinResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyResponse;
 import com.erbe.erbebackend.domain.journey.service.JourneyService;
@@ -38,8 +39,8 @@ public class JourneyController {
 
     @Operation(summary = "여행 전체 조회 API", description = "사용자 기반으로, 사용자의 모든 여행 정보를 조회하는 API")
     @GetMapping
-    public ResponseEntity<BaseResponse<List<JourneyResponse>>> getJourneys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        List<JourneyResponse> responseList = journeyService.findAllJourneys(customUserDetails.getId());
+    public ResponseEntity<BaseResponse<JourneyByContinentResponse>> getJourneys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        JourneyByContinentResponse responseList = journeyService.findAllJourneys(customUserDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.OK)

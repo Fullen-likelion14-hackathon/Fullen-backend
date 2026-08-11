@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-@Schema(description = "레전드")
+@Schema(description = "JourneyAtMapListResponse: 지도 화면 내에서, 센터 + 좌/우 여행 정보 응답하는 DTO")
 public class JourneyAtMapListResponse {
 
     private JourneyAtMapResponse leftJourney;

@@ -1,14 +1,12 @@
 package com.erbe.erbebackend.domain.journey.service;
 
 import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
-import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapListResponse;
-import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapResponse;
-import com.erbe.erbebackend.domain.journey.dto.response.JourneyMapPinResponse;
-import com.erbe.erbebackend.domain.journey.dto.response.JourneyResponse;
+import com.erbe.erbebackend.domain.journey.dto.response.*;
 import com.erbe.erbebackend.domain.journey.entity.Journey;
 import com.erbe.erbebackend.domain.journey.exception.JourneyErrorCode;
 import com.erbe.erbebackend.domain.journey.repository.JourneyRepository;
 import com.erbe.erbebackend.domain.nation.entity.Nation;
+import com.erbe.erbebackend.domain.nation.enums.Continent;
 import com.erbe.erbebackend.domain.nation.exception.NationErrorCode;
 import com.erbe.erbebackend.domain.nation.repository.NationRepository;
 import com.erbe.erbebackend.domain.user.entity.User;
@@ -20,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -59,35 +55,76 @@ public class JourneyService {
         return response;
     }
 
-    public List<JourneyResponse> findAllJourneys(Long userId) {
+    public JourneyByContinentResponse findAllJourneys(Long userId){
 
         log.info("[JourneyService] 모든 여행 조회 - 시작");
 
-        // 유저 조회
-        User user = userRepository.findById(userId).orElseThrow(() ->{
+        // 1 유저 조회
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             log.warn("[JourneyService] 유저 조회 실패 - userId: {}", userId);
             return new CustomException(UserErrorCode.USER_NOT_FOUND);
         });
 
-        // 여행 리스트 조회
-        List<Journey> journeyList = journeyRepository.findAllByUser(user).orElseThrow(() -> {
-            log.warn("[JourneyService] 여행 조회 실패");
-            return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
-        });
+        List<Journey> latestJourneys = new ArrayList<>();
 
-        // 응답 DTO들을 담을 리스트 선언
-        List<JourneyResponse> responseList = new ArrayList<>();
+        // 2 대륙별 가장 늦은 여행 찾아서 리스트에 추가
+        for(Continent continent : Continent.values()) {
 
-        // 리스트 순회하며 DTO 변환 -> add
-        for(Journey journey : journeyList) {
-            responseList.add(toJourneyResponse(journey));
+            // 각 대륙별, 최신 등록된 여행들만 가져오기
+            Journey latestJourney = journeyRepository.findTopByUserAndNationContinentOrderByStartDateDesc(user, continent);
+
+            // 여행이 존재할때만(남극 같은 대륙에 여행 가지 않았을 수도 있음) 리스트에 add해서 null 방지
+            if(latestJourney != null) {
+                latestJourneys.add(latestJourney);
+            }
+
         }
 
-        log.info("[JourneyService] 모든 여행 조회 - 종료: 여행 응답 개수 = {}", responseList.size());
+        // 여행 시작일이 최신인 순서대로 여행 정렬
+        List<Journey> sortedList = latestJourneys.stream()
+                .sorted(Comparator.comparing(Journey::getStartDate).reversed())
+                .toList();
 
-        // DTO 리스트 반환
-        return responseList;
+        // 정렬 기준 대륙을 저장해둘 리스트 뽑기
+        List<Continent> sortedContinents = new ArrayList<>();
 
+        // 대륙 정렬 기준 추출
+        for(Journey journey : sortedList){
+            sortedContinents.add(journey.getNation().getContinent());
+        }
+
+        Map<String, ContinentJourneyGroupResponse> continetMap = new LinkedHashMap<>();
+
+        // 정렬 기준으로 가져오기
+        for(Continent continent : sortedContinents) {
+
+            // 대륙별 리스트 가져오는 메소드
+            List<Journey> tempJourneys = journeyRepository.findByUserAndNationContinentOrderByStartDateDesc(user, continent);
+
+            if(tempJourneys.isEmpty()) continue;
+
+            List<JourneyResponse> journeyResponses = new ArrayList<>();
+
+            // 순회하며 DTO 변환
+            for(Journey journey : tempJourneys){
+                journeyResponses.add(toJourneyResponse(journey));
+            }
+
+            ContinentJourneyGroupResponse groupResponse = ContinentJourneyGroupResponse.builder()
+                    .count(journeyResponses.size())
+                    .journeys(journeyResponses)
+                    .build();
+
+            continetMap.put(continent.name(), groupResponse);
+        }
+
+        log.info("[JourneyService] 모든 여행 조회 - 종료: 여행 응답 개수 = {}", continetMap.size());
+
+        JourneyByContinentResponse response = JourneyByContinentResponse.builder()
+                .continents(continetMap)
+                .build();
+
+        return response;
     }
 
     public List<JourneyMapPinResponse> getMapPins(Long userId){
