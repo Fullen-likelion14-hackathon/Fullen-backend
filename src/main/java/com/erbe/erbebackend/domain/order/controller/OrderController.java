@@ -1,7 +1,9 @@
 package com.erbe.erbebackend.domain.order.controller;
 
 import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
+import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
+import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
 import com.erbe.erbebackend.domain.order.service.OrderService;
 import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
@@ -36,6 +38,20 @@ public class OrderController {
         PatchOrderResponse response = orderService.patchOrder(request, userDetails.getId());
 
         // 응답 반환
-        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(201, "패치 주문 완료", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "패치 주문 완료", response));
+    }
+
+    // 1:1 커스텀 요청
+    @Operation(summary = "1:1 커스텀 요청 주문 API", description = "사용자가 피드 사진, 작가, 부착 위치를 정해 1:1 커스텀 패치를 신청하는 API")
+    @PostMapping("/orders/premiums")
+    public ResponseEntity<BaseResponse<PremiumOrderResponse>> premiumOrder(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody PremiumOrderRequest request) {
+
+        // service 호출
+        PremiumOrderResponse response = orderService.premiumOrder(request, userDetails.getId());
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "1:1 커스텀 요청 주문 완료", response));
     }
 }
