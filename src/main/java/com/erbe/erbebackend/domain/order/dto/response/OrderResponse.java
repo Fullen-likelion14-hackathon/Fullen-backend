@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(title = "패치 주문 응답 dto", description = "사용자가 가방에 부착된 패치를 주문후 서버가 반환하는 데이터")
-public class PatchOrderResponse {
+@Schema(title = "주문 응답 dto", description = "사용자가 가방에 달린 이니셜 및 패치를 주문후 서버가 반환하는 데이터")
+public class OrderResponse {
 
-    @Schema(description = "패치 주문 고유번호", example = "1")
-    private Long patchOrderId;
+    @Schema(description = "주문 고유번호", example = "1")
+    private Long orderId;
 
     @Schema(description = "주문한 가방 고유번호", example = "1")
     private Long userBagId;

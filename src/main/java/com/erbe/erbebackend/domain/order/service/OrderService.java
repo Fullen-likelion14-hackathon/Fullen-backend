@@ -7,19 +7,19 @@ import com.erbe.erbebackend.domain.bag.entity.UserBag;
 import com.erbe.erbebackend.domain.bag.exception.UserBagErrorCode;
 import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
 import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
-import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
+import com.erbe.erbebackend.domain.order.dto.request.OrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.InitialApplyResponse;
-import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
+import com.erbe.erbebackend.domain.order.dto.response.OrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
-import com.erbe.erbebackend.domain.order.entity.InitialOrder;
-import com.erbe.erbebackend.domain.order.entity.PatchOrder;
+import com.erbe.erbebackend.domain.order.entity.Initial;
+import com.erbe.erbebackend.domain.order.entity.Order;
 import com.erbe.erbebackend.domain.order.entity.PremiumOrder;
 import com.erbe.erbebackend.domain.order.enums.OrderStatus;
 import com.erbe.erbebackend.domain.order.exception.OrderErrorCode;
-import com.erbe.erbebackend.domain.order.repository.InitialOrderRepository;
-import com.erbe.erbebackend.domain.order.repository.PatchOrderRepository;
+import com.erbe.erbebackend.domain.order.repository.InitialRepository;
+import com.erbe.erbebackend.domain.order.repository.OrderRepository;
 import com.erbe.erbebackend.domain.order.repository.PremiumOrderRepository;
 import com.erbe.erbebackend.domain.patch.entity.PatchPosition;
 import com.erbe.erbebackend.domain.patch.repository.PatchPositionRepository;
@@ -43,18 +43,18 @@ import java.util.List;
 @Slf4j
 public class OrderService {
 
-    private final PatchOrderRepository patchOrderRepository;
+    private final OrderRepository orderRepository;
     private final UserBagRepository userBagRepository;
     private final PatchPositionRepository patchPositionRepository;
     private final UserRepository userRepository;
     private final PremiumOrderRepository premiumOrderRepository;
     private final PhotoRepository photoRepository;
     private final ArtistRepository artistRepository;
-    private final InitialOrderRepository initialOrderRepository;
+    private final InitialRepository initialRepository;
 
-    // 가방에 패치 부착하고 주문
+    // 가방에 달린 이니셜과 패치 주문
     @Transactional
-    public PatchOrderResponse patchOrder(PatchOrderRequest request, Long userId) {
+    public OrderResponse createOrder(OrderRequest request, Long userId) {
 
         // 사용자가 존재하는지 조회
         User user = userRepository.findById(userId)
@@ -71,37 +71,45 @@ public class OrderService {
         }
 
         // 주문이 안된 패치가 있는지 조회
-        List<PatchPosition> patchPosition = patchPositionRepository.findAllByUserBagAndIsEditableTrueAndPatchIsNotNull(userBag);
+        List<PatchPosition> patchPositions = patchPositionRepository.findAllByUserBagAndIsEditableTrueAndPatchIsNotNull(userBag);
+
+        // 주문이 안된 이니셜이 있는지 조회
+        List<Initial> initials = initialRepository.findAllByUserBagAndOrderIsNull(userBag);
 
         // 주문할 패치가 있는지 조회
-        if (patchPosition.isEmpty()) {
-            log.warn("[OrderService] 가방에 부착된 패치가 없어 주문할 수 없습니다.");
-            throw new CustomException(OrderErrorCode.NO_PATCH_ATTACH);
+        if (patchPositions.isEmpty() && initials.isEmpty()) {
+            log.warn("[OrderService] 주문할 패치나 이니셜이 없습니다.");
+            throw new CustomException(OrderErrorCode.NOTHING_ORDER);
         }
 
         // 객체 생성
-        PatchOrder patchOrder = PatchOrder.builder()
+        Order order = Order.builder()
                 .user(user)
                 .userBag(userBag)
                 .orderStatus(OrderStatus.DELIVERED) // 주문하면 배송 완료 상태로 변경
                 .build();
 
         // DB 저장
-        patchOrderRepository.save(patchOrder);
+        orderRepository.save(order);
 
         // 주문이 안된 패치를 주문 완료로 변경
-        for (PatchPosition position : patchPosition) {
-            position.confirmOrder(patchOrder);
+        for (PatchPosition position : patchPositions) {
+            position.confirmOrder(order);
+        }
+
+        // 주문이 안된 이니셜을 주문 완료로 변경
+        for (Initial initial : initials) {
+            initial.confirmOrder(order);
         }
 
         // 로그 출력
-        log.info("[OrderService] 패치 주문에 성공했습니다: patchOrderId={}", patchOrder.getId());
+        log.info("[OrderService] 패치 및 이니셜 주문에 성공했습니다: orderId={}", order.getId());
 
         // 응답 세팅
-        return PatchOrderResponse.builder()
-                .patchOrderId(patchOrder.getId())
+        return OrderResponse.builder()
+                .orderId(order.getId())
                 .userBagId(userBag.getId())
-                .orderStatus(patchOrder.getOrderStatus())
+                .orderStatus(order.getOrderStatus())
                 .bagName(userBag.getBagProduct().getBag().getName())
                 .bagSize(userBag.getBagProduct().getBag().getSize())
                 .bagFrontImgUrl(userBag.getBagProduct().getBag().getFrontImgUrl())
@@ -226,7 +234,7 @@ public class OrderService {
         }
 
         // 객체 생성
-        InitialOrder initialOrder = InitialOrder.builder()
+        Initial initial = Initial.builder()
                 .userBag(userBag)
                 .initialPhrase(request.getInitialPhrase())
                 .color(request.getColor())
@@ -234,18 +242,18 @@ public class OrderService {
                 .build();
 
         // DB 저장
-        initialOrderRepository.save(initialOrder);
+        initialRepository.save(initial);
 
         // 로그 출력
-        log.info("[OrderService] 이니셜 적용에 성공했습니다: initialOrderId={}", initialOrder.getId());
+        log.info("[OrderService] 이니셜 적용에 성공했습니다: initialOrderId={}", initial.getId());
 
         // 응답 세팅
         return InitialApplyResponse.builder()
-                .initialOrderId(initialOrder.getId())
+                .initialId(initial.getId())
                 .userBagId(userBag.getId())
-                .initialPhrase(initialOrder.getInitialPhrase())
-                .color(initialOrder.getColor())
-                .isBold(initialOrder.isBold())
+                .initialPhrase(initial.getInitialPhrase())
+                .color(initial.getColor())
+                .isBold(initial.isBold())
                 .build();
     }
 }
