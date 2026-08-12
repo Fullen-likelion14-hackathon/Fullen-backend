@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum OrderErrorCode implements BaseErrorCode {
 
-    NOTHING_ORDER("O4001", "주문할 패치나 이니셜이 없습니다.", HttpStatus.NOT_FOUND),
+    NOTHING_ORDER("O4001", "주문할 패치나 이니셜이 없습니다.", HttpStatus.CONFLICT),
     PREMIUM_ORDER_NOT_FOUND("O4002", "1:1 커스텀 주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PREMIUM_ORDER_ACCESS_DENIED("O4003", "본인이 신청한 1:1 커스텀 주문이 아닙니다.", HttpStatus.FORBIDDEN);
 
