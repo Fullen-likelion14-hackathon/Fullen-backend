@@ -1,10 +1,10 @@
 package com.erbe.erbebackend.domain.order.controller;
 
 import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
-import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
+import com.erbe.erbebackend.domain.order.dto.request.OrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.InitialApplyResponse;
-import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
+import com.erbe.erbebackend.domain.order.dto.response.OrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
 import com.erbe.erbebackend.domain.order.service.OrderService;
@@ -27,18 +27,18 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // 패치 주문
-    @Operation(summary = "패치 주문 API", description = "가방에 부착됐고 아직 주문이 안된 패치를 주문 요청하는 API")
-    @PostMapping("/orders/patches")
-    public ResponseEntity<BaseResponse<PatchOrderResponse>> patchOrder(
+    // 가방에 적용된 패치/이니셜 주문
+    @Operation(summary = "주문 API", description = "가방에 적용된 패치, 이니셜을 모아서 주문하는 API (패치 또는 이니셜 중 최소 하나는 있어야 함)")
+    @PostMapping("/orders")
+    public ResponseEntity<BaseResponse<OrderResponse>> createOrder(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody PatchOrderRequest request) {
+            @Valid @RequestBody OrderRequest request) {
 
         // service 호출
-        PatchOrderResponse response = orderService.patchOrder(request, userDetails.getId());
+        OrderResponse response = orderService.createOrder(request, userDetails.getId());
 
         // 응답 반환
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "패치 주문 완료", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "주문 완료", response));
     }
 
     // 1:1 커스텀 요청

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class InitialApplyResponse {
 
     @Schema(description = "이니셜 주문 고유번호", example = "1")
-    private Long initialOrderId;
+    private Long initialId;
 
     @Schema(description = "가방 고유번호", example = "1")
     private Long userBagId;

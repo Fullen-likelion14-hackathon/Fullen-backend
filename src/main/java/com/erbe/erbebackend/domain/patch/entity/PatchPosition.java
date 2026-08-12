@@ -2,7 +2,7 @@ package com.erbe.erbebackend.domain.patch.entity;
 
 import com.erbe.erbebackend.domain.bag.entity.UserBag;
 import com.erbe.erbebackend.domain.bag.enums.BagSide;
-import com.erbe.erbebackend.domain.order.entity.PatchOrder;
+import com.erbe.erbebackend.domain.order.entity.Order;
 import com.erbe.erbebackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,8 +31,8 @@ public class PatchPosition extends BaseTimeEntity {
     private Patch patch;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patch_order_id")
-    private PatchOrder patchOrder; // null이면 아직 주문 안 된 패치
+    @JoinColumn(name = "order_id")
+    private Order order; // null이면 아직 주문 안 된 패치
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -60,8 +60,8 @@ public class PatchPosition extends BaseTimeEntity {
     }
 
     // 주문 확정 (해당 위치를 주문에 포함시키고 수정/삭제 불가 상태로 변경)
-    public void confirmOrder(PatchOrder patchOrder) {
-        this.patchOrder = patchOrder;
+    public void confirmOrder(Order order) {
+        this.order = order;
         this.isEditable = false;
     }
 

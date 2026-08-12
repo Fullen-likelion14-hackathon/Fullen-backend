@@ -1,9 +1,9 @@
 package com.erbe.erbebackend.domain.order.repository;
 
-import com.erbe.erbebackend.domain.order.entity.InitialOrder;
+import com.erbe.erbebackend.domain.order.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InitialOrderRepository extends JpaRepository<InitialOrder, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 }

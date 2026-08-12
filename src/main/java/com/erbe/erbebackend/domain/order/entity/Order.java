@@ -2,6 +2,7 @@ package com.erbe.erbebackend.domain.order.entity;
 
 import com.erbe.erbebackend.domain.bag.entity.UserBag;
 import com.erbe.erbebackend.domain.order.enums.OrderStatus;
+import com.erbe.erbebackend.domain.user.entity.User;
 import com.erbe.erbebackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,8 +12,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "initial_orders")
-public class InitialOrder extends BaseTimeEntity {
+@Table(name = "orders")
+public class Order extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,12 +23,11 @@ public class InitialOrder extends BaseTimeEntity {
     @JoinColumn(name = "user_bag_id", nullable = false)
     private UserBag userBag;
 
-    @Column(nullable = false, length = 50)
-    private String initialPhrase; // 이니셜 문구
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(nullable = false, length = 20)
-    private String color; // Color 객체 X -> ex "#33ff11"
-
-    @Column(nullable = false)
-    private boolean isBold; // 굵기 여부 (true : 굵게, false : 기본)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private OrderStatus orderStatus;
 }
