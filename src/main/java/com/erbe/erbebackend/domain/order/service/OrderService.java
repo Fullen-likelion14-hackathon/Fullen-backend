@@ -6,15 +6,19 @@ import com.erbe.erbebackend.domain.artist.repository.ArtistRepository;
 import com.erbe.erbebackend.domain.bag.entity.UserBag;
 import com.erbe.erbebackend.domain.bag.exception.UserBagErrorCode;
 import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
+import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PatchOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
+import com.erbe.erbebackend.domain.order.dto.response.InitialApplyResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PatchOrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
 import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
+import com.erbe.erbebackend.domain.order.entity.InitialOrder;
 import com.erbe.erbebackend.domain.order.entity.PatchOrder;
 import com.erbe.erbebackend.domain.order.entity.PremiumOrder;
 import com.erbe.erbebackend.domain.order.enums.OrderStatus;
 import com.erbe.erbebackend.domain.order.exception.OrderErrorCode;
+import com.erbe.erbebackend.domain.order.repository.InitialOrderRepository;
 import com.erbe.erbebackend.domain.order.repository.PatchOrderRepository;
 import com.erbe.erbebackend.domain.order.repository.PremiumOrderRepository;
 import com.erbe.erbebackend.domain.patch.entity.PatchPosition;
@@ -46,6 +50,7 @@ public class OrderService {
     private final PremiumOrderRepository premiumOrderRepository;
     private final PhotoRepository photoRepository;
     private final ArtistRepository artistRepository;
+    private final InitialOrderRepository initialOrderRepository;
 
     // 가방에 패치 부착하고 주문
     @Transactional
@@ -203,6 +208,44 @@ public class OrderService {
                 .artistImgUrl(premiumOrder.getArtist().getImgUrl())
                 .introSummary(premiumOrder.getArtist().getIntroSummary())
                 .requestDetail(premiumOrder.getRequestDetail())
+                .build();
+    }
+
+    // 이니셜 적용
+    @Transactional
+    public InitialApplyResponse applyInitial(InitialApplyRequest request, Long userId) {
+
+        // 가방이 존재하는지 조회
+        UserBag userBag = userBagRepository.findById(request.getUserBagId())
+                .orElseThrow(() -> new CustomException(UserBagErrorCode.USER_BAG_NOT_FOUND));
+
+        // 사용자 본인 소유의 가방인지 조회
+        if (!userBag.getUser().getId().equals(userId)) {
+            log.warn("[OrderService] 본인 소유 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 객체 생성
+        InitialOrder initialOrder = InitialOrder.builder()
+                .userBag(userBag)
+                .initialPhrase(request.getInitialPhrase())
+                .color(request.getColor())
+                .isBold(request.getIsBold())
+                .build();
+
+        // DB 저장
+        initialOrderRepository.save(initialOrder);
+
+        // 로그 출력
+        log.info("[OrderService] 이니셜 적용에 성공했습니다: initialOrderId={}", initialOrder.getId());
+
+        // 응답 세팅
+        return InitialApplyResponse.builder()
+                .initialOrderId(initialOrder.getId())
+                .userBagId(userBag.getId())
+                .initialPhrase(initialOrder.getInitialPhrase())
+                .color(initialOrder.getColor())
+                .isBold(initialOrder.isBold())
                 .build();
     }
 }
