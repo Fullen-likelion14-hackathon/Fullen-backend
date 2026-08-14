@@ -9,14 +9,12 @@ import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
 import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
 import com.erbe.erbebackend.domain.order.dto.request.OrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
-import com.erbe.erbebackend.domain.order.dto.response.InitialApplyResponse;
-import com.erbe.erbebackend.domain.order.dto.response.OrderResponse;
-import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
-import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
+import com.erbe.erbebackend.domain.order.dto.response.*;
 import com.erbe.erbebackend.domain.order.entity.Initial;
 import com.erbe.erbebackend.domain.order.entity.Order;
 import com.erbe.erbebackend.domain.order.entity.PremiumOrder;
 import com.erbe.erbebackend.domain.order.enums.OrderStatus;
+import com.erbe.erbebackend.domain.order.enums.OrderType;
 import com.erbe.erbebackend.domain.order.exception.OrderErrorCode;
 import com.erbe.erbebackend.domain.order.repository.InitialRepository;
 import com.erbe.erbebackend.domain.order.repository.OrderRepository;
@@ -35,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -255,5 +255,44 @@ public class OrderService {
                 .color(initial.getColor())
                 .isBold(initial.isBold())
                 .build();
+    }
+
+    // 주문 목록 최신순 조회
+    public List<OrderListResponse> orderList(Long userId) {
+
+        // 사용자가 존재하는지 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        // 응답 세팅
+        List<OrderListResponse> list = new ArrayList<>();
+
+        // 패치 + 이니셜 주문 목록
+        for (Order order : orderRepository.findAllByUserOrderByIdDesc(user)) {
+            list.add(OrderListResponse.builder()
+                    .type(OrderType.REGULAR)
+                    .orderId(order.getId())
+                    .frontImgUrl(order.getUserBag().getBagProduct().getBag().getFrontImgUrl())
+                    .createdAt(order.getCreatedAt())
+                    .build());
+        }
+
+        // 1:1 커스텀 주문 목록
+        for (PremiumOrder premiumOrder : premiumOrderRepository.findAllByUserOrderByIdDesc(user)) {
+            list.add(OrderListResponse.builder()
+                    .type(OrderType.PREMIUM)
+                    .orderId(premiumOrder.getId())
+                    .frontImgUrl(premiumOrder.getPatchPosition().getUserBag().getBagProduct().getBag().getFrontImgUrl())
+                    .createdAt(premiumOrder.getCreatedAt())
+                    .build());
+        }
+
+        // 주문 목록 전체 최신순 정렬
+        list.sort(Comparator.comparing(OrderListResponse::getCreatedAt).reversed());
+
+        // 로그 출력
+        log.info("[OrderService] 주문 목록 조회 성공");
+
+        return list;
     }
 }
