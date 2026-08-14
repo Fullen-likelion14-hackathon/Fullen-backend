@@ -94,4 +94,18 @@ public class OrderController {
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "주문 목록 조회 성공", response));
     }
+
+    // 이니셜 적용 조회
+    @Operation(summary = "이니셜 적용 조회 API", description = "사용자 본인 소유 가방에 적용된 이니셜을 조회하는 API")
+    @GetMapping("/orders/initials")
+    public ResponseEntity<BaseResponse<List<InitialApplyResponse>>> initialList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long userBagId) {
+
+        // service 호출
+        List<InitialApplyResponse> response = orderService.initialApplyList(userDetails.getId(), userBagId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "이니셜 조회 성공", response));
+    }
 }
