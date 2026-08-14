@@ -295,4 +295,35 @@ public class OrderService {
 
         return list;
     }
+
+    // 이니셜 적용 조회
+    public List<InitialApplyResponse> initialApplyList(Long userId, Long userBagId) {
+
+        // 가방이 존재하는지 조회
+        UserBag userBag = userBagRepository.findById(userBagId)
+                .orElseThrow(() -> new CustomException(UserBagErrorCode.USER_BAG_NOT_FOUND));
+
+        // 사용자 본인 소유의 가방인지 조회
+        if (!userBag.getUser().getId().equals(userId)) {
+            log.warn("[OrderService] 본인 소유의 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 응답 세팅
+        List<InitialApplyResponse> list = new ArrayList<>();
+        for (Initial initial : initialRepository.findAllByUserBag(userBag)) {
+            list.add(InitialApplyResponse.builder()
+                    .initialId(initial.getId())
+                    .userBagId(userBag.getId())
+                    .initialPhrase(initial.getInitialPhrase())
+                    .color(initial.getColor())
+                    .isBold(initial.isBold())
+                    .build());
+        }
+
+        // 로그 출력
+        log.info("[OrderService] 이니셜 조회 성공");
+
+        return list;
+    }
 }
