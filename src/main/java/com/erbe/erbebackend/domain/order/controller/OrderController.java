@@ -3,10 +3,7 @@ package com.erbe.erbebackend.domain.order.controller;
 import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
 import com.erbe.erbebackend.domain.order.dto.request.OrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
-import com.erbe.erbebackend.domain.order.dto.response.InitialApplyResponse;
-import com.erbe.erbebackend.domain.order.dto.response.OrderResponse;
-import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderResponse;
-import com.erbe.erbebackend.domain.order.dto.response.PremiumOrderSearchResponse;
+import com.erbe.erbebackend.domain.order.dto.response.*;
 import com.erbe.erbebackend.domain.order.service.OrderService;
 import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
@@ -18,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -83,4 +82,16 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(201, "이니셜 적용 성공", response));
     }
 
+    // 주문 목록 조회
+    @Operation(summary = "주문 목록 최신순 조회 API", description = "사용자가 본인의 주문 목록을 최신순으로 조회하는 API")
+    @GetMapping("/orders")
+    public ResponseEntity<BaseResponse<List<OrderListResponse>>> listOrders(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        List<OrderListResponse> response = orderService.orderList(userDetails.getId());
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "주문 목록 조회 성공", response));
+    }
 }
