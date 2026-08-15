@@ -849,7 +849,7 @@ public class OpenAiImageGenService {
         String photoDescription = "여행 국가 : " + photo.getPost().getJourney().getNation().getEnName() + ", 여행 유형 : " + photo.getPost().getJourney().getType() + ", 여행 일자 : " + String.valueOf(photo.getPost().getCreatedDate());
 
         // 사진 정보 userPrompt에 추가
-        String userPrompt = request.getMessage() + photoDescription;
+        String userPrompt = request.getMessage() + " / 사진 설명 : " + photoDescription;
 
         // 기존 s3에 저장되어있던 사진 URL 추출
         String imgURL = photo.getImgUrl();
@@ -938,6 +938,7 @@ public class OpenAiImageGenService {
 
             response = openAIClient.images().edit(params);
         } catch (Exception e) {
+            log.error("[OpenAiTravelImageGenService] 이미지 생성 실패 - e.message : {}", e.getMessage());
             throw new CustomException(OpenAiErrorCode.OPENAI_IMAGE_GEN_FAILED);
         }
 

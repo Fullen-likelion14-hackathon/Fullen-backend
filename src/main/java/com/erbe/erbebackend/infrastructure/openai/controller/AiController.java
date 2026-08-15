@@ -40,7 +40,7 @@ public class AiController {
                 .body(BaseResponse.success(200, "여행 분석 완료", AnalysisResponse.of(answer)));
     }
 
-    @Operation(summary = "이미지 업로드 API", description = "유저가 선택한 사진을 기반으로 트래블패치를 제작하는 API")
+    @Operation(summary = "트래블패치 생성 API", description = "유저가 선택한 사진을 기반으로 트래블패치를 제작하는 API")
     @PostMapping("/imageGen")
     public ResponseEntity<BaseResponse<ImageGenResponse>> getImageGen(
             @Valid @RequestBody ImageGenRequest request,

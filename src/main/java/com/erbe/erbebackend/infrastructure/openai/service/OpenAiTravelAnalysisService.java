@@ -15,6 +15,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -104,7 +105,7 @@ public class OpenAiTravelAnalysisService {
                                 .text(systemPrompt))
                 .call().content();
 
-        log.info("[OpenAiTravelAnalysisService] 유저 여행 분석 - 종료 : result = {}", result);
+        log.info("[OpenAiTravelAnalysisService] 유저 여행 분석 - 종료 : resultLength = {}", Objects.requireNonNull(result).length());
 
         return result;
     }
