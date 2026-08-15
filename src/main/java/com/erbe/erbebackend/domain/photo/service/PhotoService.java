@@ -33,7 +33,7 @@ public class PhotoService {
             return new CustomException(UserErrorCode.USER_NOT_FOUND);
         });
 
-        List<Photo> photos = photoRepository.findAllByPostUser(user);
+        List<Photo> photos = photoRepository.findAllByPostUserOrderById(user);
 
         List<PhotoResponse> responseList = new ArrayList<>();
 

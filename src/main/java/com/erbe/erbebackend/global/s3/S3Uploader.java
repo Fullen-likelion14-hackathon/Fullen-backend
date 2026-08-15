@@ -62,11 +62,17 @@ public class S3Uploader {
 
         ImageDirectory directory = ImageDirectory.TRAVEL_PATCH;
 
-        byte[] decodedBytes = Base64.getDecoder().decode(b64);
+        byte[] decodedBytes;
+
+        try {
+                decodedBytes = Base64.getDecoder().decode(b64);
+            } catch (IllegalArgumentException e) {
+                throw new CustomException(S3ErrorCode.S3_UPLOAD_FAILED);
+            }
 
         InputStream inputStream = new ByteArrayInputStream(decodedBytes);
 
-        String fileName = directory.name().toLowerCase() + "/" + UUID.randomUUID();
+        String fileName = directory.name().toLowerCase() + "/" + UUID.randomUUID() + ".png";
 
         try {
             s3Client.putObject(
@@ -78,11 +84,9 @@ public class S3Uploader {
                     RequestBody.fromInputStream(inputStream, decodedBytes.length)
             );
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CustomException(S3ErrorCode.S3_UPLOAD_FAILED);
         }
 
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
-
-
     }
 }

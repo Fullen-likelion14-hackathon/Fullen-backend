@@ -80,7 +80,7 @@ public class OpenAiTravelAnalysisService {
         for(Journey journey : journeyList) {
             additionalInformation += "[Journey{" + journeyList.indexOf(journey) + "}{type =" + journey.getType() + "}" + "{" + "duration ="  + journey.getStartDate() + " ~ " + journey.getEndDate() + "}" + "{" + "nation = " + journey.getNation().getKrName()  + "}" + "=";
 
-            List<Post> postList = postRepository.findAllByJourney(journey);
+            List<Post> postList = postRepository.findAllByJourneyOrderByCreatedAtAsc(journey);
 
             for(int i = 0 ; i < postList.size() ; i++) {
                 Post post =  postList.get(i);

@@ -9,6 +9,7 @@ import com.erbe.erbebackend.infrastructure.openai.service.OpenAiImageGenService;
 import com.erbe.erbebackend.infrastructure.openai.service.OpenAiTravelAnalysisService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class AiController {
     @Operation(summary = "이미지 업로드 API", description = "유저가 선택한 사진을 기반으로 트래블패치를 제작하는 API")
     @PostMapping("/imageGen")
     public ResponseEntity<BaseResponse<ImageGenResponse>> getImageGen(
-            @RequestBody ImageGenRequest request,
+            @Valid @RequestBody ImageGenRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
             ){
         List<String> answer = imageGenService.getResult(request, customUserDetails.getId());

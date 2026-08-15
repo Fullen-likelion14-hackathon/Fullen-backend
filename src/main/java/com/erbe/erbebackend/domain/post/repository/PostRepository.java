@@ -20,6 +20,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByUserNotAndIsPublicAndNationAndCreatedDateGreaterThanEqual(User user, Boolean isPublic, Nation nation, LocalDate createdDateIsGreaterThan);
 
     List<Post> findByUserNotAndIsPublicAndCreatedDateGreaterThanEqual(User user, Boolean isPublic, LocalDate createdDateIsGreaterThan);
-
-    List<Post> findAllByJourney(Journey journey);
 }

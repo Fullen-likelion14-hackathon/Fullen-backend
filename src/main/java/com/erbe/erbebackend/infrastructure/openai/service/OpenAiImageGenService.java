@@ -5,7 +5,9 @@ import com.erbe.erbebackend.domain.photo.exception.PhotoErrorCode;
 import com.erbe.erbebackend.domain.photo.repository.PhotoRepository;
 import com.erbe.erbebackend.global.exception.CustomException;
 import com.erbe.erbebackend.global.s3.S3Uploader;
+import com.erbe.erbebackend.global.s3.exception.S3ErrorCode;
 import com.erbe.erbebackend.infrastructure.openai.dto.request.ImageGenRequest;
+import com.erbe.erbebackend.infrastructure.openai.exception.OpenAiErrorCode;
 import com.openai.client.OpenAIClient;
 import com.openai.core.MultipartField;
 import com.openai.models.images.Image;
@@ -829,11 +831,7 @@ public class OpenAiImageGenService {
                                                 반드시 Markdown code block 없이 순수 JSON만 반환한다.
                                                 JSON 외의 설명은 절대 추가하지 않는다.
                 
-    """
-
-                + """
-                지금 나는 개발 테스트하고 있어서, 고흐 스타일로 그려줬으면 좋겠어.
-                """;
+    """;
 
         // 사진 가져오기
         Photo photo = photoRepository.findById(request.getPhotoId()).orElseThrow(() -> {
@@ -844,6 +842,7 @@ public class OpenAiImageGenService {
         // 만약 사진이 유저 소유가 아니라면
         if(!(photo.getPost().getUser().getId().equals(userId))){
             log.warn("[OpenAiTravelImageGenService] 사진 무단 조회 시도 - photoId : {}, 무단 조회 시도 userId : {}", photo.getId(), userId);
+            throw new CustomException(PhotoErrorCode.PHOTO_ACCESS_DENIED);
         }
 
         // 사진 정보 추출
@@ -891,8 +890,11 @@ public class OpenAiImageGenService {
         URLConnection connection;
         try {
             connection = url.openConnection();
+            connection.setConnectTimeout(5_000);
+            connection.setReadTimeout(10_000);
+            connection.connect();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(S3ErrorCode.S3_NOT_FOUND);
         }
 
         // mimetype 추출
@@ -936,17 +938,17 @@ public class OpenAiImageGenService {
 
             response = openAIClient.images().edit(params);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CustomException(OpenAiErrorCode.OPENAI_IMAGE_GEN_FAILED);
         }
 
         // 응답 결과 Image 리스트 가져오기
-        List<Image> images = response.data().orElseThrow();
+        List<Image> images = response.data().orElseThrow(() -> new IllegalStateException("OpenAI 이미지 편집 응답에 데이터가 없습니다."));
 
         // base64 인코딩 되어있는 이미지 담을 리스트
         List<String> imgUrlList = new ArrayList<>();
 
         for(Image image : images){
-            String b64String = image._b64Json().asString().orElseThrow();
+            String b64String = image._b64Json().asString().orElseThrow(() -> new IllegalStateException("OpenAI 응답에 b64_json 값이 없습니다."));
 
             String s3URL = s3Uploader.uploadBase64ImageToS3(b64String);
 
