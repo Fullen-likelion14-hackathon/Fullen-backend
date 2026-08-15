@@ -11,7 +11,10 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
 import java.util.UUID;
 
 @Component
@@ -53,5 +56,33 @@ public class S3Uploader {
         }
 
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
+    }
+
+    public String uploadBase64ImageToS3(String b64){
+
+        ImageDirectory directory = ImageDirectory.TRAVEL_PATCH;
+
+        byte[] decodedBytes = Base64.getDecoder().decode(b64);
+
+        InputStream inputStream = new ByteArrayInputStream(decodedBytes);
+
+        String fileName = directory.name().toLowerCase() + "/" + UUID.randomUUID();
+
+        try {
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(fileName)
+                            .contentType("image/png")
+                            .build(),
+                    RequestBody.fromInputStream(inputStream, decodedBytes.length)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
+
+
     }
 }
