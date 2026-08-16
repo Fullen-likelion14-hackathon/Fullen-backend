@@ -98,7 +98,7 @@ public class PostController {
     @PutMapping("/posts/{postId}")
     public ResponseEntity<BaseResponse<PostResponse>> updatePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody PostUpdateRequest request,
+            @Valid @RequestBody PostUpdateRequest request,
             @PathVariable Long postId
     ){
         PostResponse response = postService.updatePost(request, postId, customUserDetails.getId());

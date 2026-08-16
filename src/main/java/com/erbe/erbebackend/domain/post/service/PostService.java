@@ -244,9 +244,7 @@ public class PostService {
         List<Photo> originalPhotoList = photoRepository.findAllByPostOrderBySeqAsc(post);
 
         // 기존 DB에 저장되었던 사진들 삭제
-        for(Photo photo : originalPhotoList){
-            photoRepository.delete(photo);
-        }
+        photoRepository.deleteAll(originalPhotoList);
 
         // 넘겨받은 URL 기준으로 다시 저장
         for(int i = 0; i < imgUrlList.size(); i++){
@@ -291,6 +289,10 @@ public class PostService {
         }
 
         postRepository.delete(post);
+
+        journeyRepository.incrementPostCount(post.getJourney().getId());
+
+
 
         return "게시물 삭제 성공 - postId : " + postId;
     }

@@ -103,6 +103,12 @@ public class S3Uploader {
 
         String decodedUrl = URLDecoder.decode(fullURL, StandardCharsets.UTF_8);
 
+        // 버킷 base URL 검증
+        String expectedPrefix = String.format("https://%s.s3.", bucket);
+        if (!decodedUrl.startsWith(expectedPrefix)) {
+            throw new CustomException(S3ErrorCode.S3_INVALID_URL);
+        }
+
         String objectKey = decodedUrl.substring(decodedUrl.indexOf(".com/") + 5);
 
         try {
