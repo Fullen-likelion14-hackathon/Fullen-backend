@@ -41,4 +41,11 @@ public class Post extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "journey_id")
     private Journey journey;
+
+    public void updatePost(String comment, Boolean isPublic, String imgUrl, int photoCount){
+        this.comment = comment;
+        this.isPublic = isPublic;
+        this.imgUrl = imgUrl;
+        this.photoCount = photoCount;
+    }
 }

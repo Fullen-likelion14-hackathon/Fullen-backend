@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.post.controller;
 
 import com.erbe.erbebackend.domain.post.dto.request.PostCreateRequest;
+import com.erbe.erbebackend.domain.post.dto.request.PostUpdateRequest;
 import com.erbe.erbebackend.domain.post.dto.response.PostCardResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostPreviewResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostResponse;
@@ -91,6 +92,33 @@ public class PostController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BaseResponse.success(200, "게시물 미리보기 조회 완료", response));
+    }
+
+    @Operation(summary = "게시물 수정 API", description = "게시물 수정하는 API")
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<BaseResponse<PostResponse>> updatePost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody PostUpdateRequest request,
+            @PathVariable Long postId
+    ){
+        PostResponse response = postService.updatePost(request, postId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "게시물 수정 성공", response));
+    }
+
+    @Operation(summary = "게시물 삭제 API", description = "게시물 삭제하는 API")
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<BaseResponse<String>> deletePost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long postId
+    ){
+        String response = postService.deletePost(postId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "게시물 삭제 성공", response));
     }
 
 }

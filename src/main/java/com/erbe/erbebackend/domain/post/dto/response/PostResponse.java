@@ -1,5 +1,6 @@
 package com.erbe.erbebackend.domain.post.dto.response;
 
+import com.erbe.erbebackend.domain.photo.dto.response.PhotoResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,8 +28,11 @@ public class PostResponse {
     @Schema(description = "포스트 날짜", example = "2026-08-04")
     private LocalDate date;
 
-    @Schema(description = "포스트 이미지 URL 리스트", example = "[\"https://s3.aws.com/testURL1\", \"https://s3.aws.com//testURL2\"]")
-    private List<String> imgUrlList;
+//    @Schema(description = "포스트 이미지 URL 리스트", example = "[\"https://s3.aws.com/testURL1\", \"https://s3.aws.com//testURL2\"]")
+//    private List<String> imgUrlList;
+
+    @Schema(description = "사진 리스트")
+    private List<PhotoResponse> photoList;
 
     @Schema(description = "본문", example = "브란덴부르크문 근처를 드라이브하다\n 우연히 들른~~")
     private String comment;
