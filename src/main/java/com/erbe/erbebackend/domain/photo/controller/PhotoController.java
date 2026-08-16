@@ -4,14 +4,13 @@ import com.erbe.erbebackend.domain.photo.dto.response.PhotoResponse;
 import com.erbe.erbebackend.domain.photo.service.PhotoService;
 import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,6 +23,7 @@ public class PhotoController {
     private final PhotoService photoService;
 
     @GetMapping("/photos")
+    @Operation(summary = "유저별 사진 전체 조회 API", description = "유저의 모든 사진을 조회하는 API입니다.")
     public ResponseEntity<BaseResponse<List<PhotoResponse>>> getUserPhoto(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
             ){
@@ -33,5 +33,18 @@ public class PhotoController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BaseResponse.success(200, "유저 기반 사진 전체 조회 성공", responseList));
+    }
+
+    @DeleteMapping("/photos/{photoId}")
+    @Operation(summary = "사진 삭제 API", description = "유저의 사진을 삭제하는 API입니다.")
+    public ResponseEntity<BaseResponse<String>> deletePhoto(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long photoId
+    ){
+        String response = photoService.deletePhoto(photoId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "사진 삭제 성공", response));
     }
 }
