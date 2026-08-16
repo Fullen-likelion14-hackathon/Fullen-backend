@@ -20,6 +20,7 @@ public class JourneyUpdateRequest {
     @Schema(description = "여행 대표 이미지 URL", example = "https://s3.aws.com/testURL")
     private String imgUrl;
 
+    @NotNull
     @Schema(description = "여행 유형", example = "우정 여행")
     private String type;
 

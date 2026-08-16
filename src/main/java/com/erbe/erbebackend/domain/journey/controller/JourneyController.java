@@ -88,7 +88,7 @@ public class JourneyController {
             @Valid @RequestBody JourneyUpdateRequest request,
             @PathVariable Long journeyId
     ){
-        JourneyResponse response = journeyService.updateJourney(request, customUserDetails.getId(), journeyId);
+        JourneyResponse response = journeyService.updateJourney(request, journeyId, customUserDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
