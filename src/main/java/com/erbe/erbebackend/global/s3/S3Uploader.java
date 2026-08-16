@@ -3,6 +3,7 @@ package com.erbe.erbebackend.global.s3;
 import com.erbe.erbebackend.global.exception.CustomException;
 import com.erbe.erbebackend.global.s3.entity.ImageDirectory;
 import com.erbe.erbebackend.global.s3.exception.S3ErrorCode;
+import com.erbe.erbebackend.infrastructure.openai.service.OpenAiProductAnalysisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class S3Uploader {
 
     private final S3Client s3Client;
+    private final OpenAiProductAnalysisService openAiProductAnalysisService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -32,6 +34,10 @@ public class S3Uploader {
     public String upload(MultipartFile file, ImageDirectory dirName) {
         if (file.isEmpty()) {
             throw new CustomException(S3ErrorCode.S3_EMPTY_FILE);
+        }
+
+        if(dirName.name().equals("FEED") && !(openAiProductAnalysisService.isMCMProduct(file))){
+            throw new CustomException(S3ErrorCode.S3_NOT_MCM);
         }
 
         String ext = "";
