@@ -1,8 +1,10 @@
 package com.erbe.erbebackend.domain.order.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +21,7 @@ public class InitialApplyRequest {
 
     @Schema(description = "이니셜 텍스트", example = "MCM")
     @NotBlank(message = "이니셜은 필수 입력값입니다.")
+    @Size(max = 14, message = "이니셜은 14자 이하로 입력해주세요.")
     private String initialPhrase;
 
     @Schema(description = "색상", example = "#ff33cc")
