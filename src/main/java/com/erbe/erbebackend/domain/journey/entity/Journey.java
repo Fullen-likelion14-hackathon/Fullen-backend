@@ -48,4 +48,11 @@ public class Journey extends BaseTimeEntity {
     public void updateFirstImageUrl(String firstImageUrl) {
         this.firstImgUrl = firstImageUrl;
     }
+
+    public void updateJourney(String imgUrl, String type, LocalDate startDate, LocalDate endDate) {
+        this.coverImgUrl = imgUrl;
+        this.type = type;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

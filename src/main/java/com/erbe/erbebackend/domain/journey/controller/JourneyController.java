@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.journey.controller;
 
 import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
+import com.erbe.erbebackend.domain.journey.dto.request.JourneyUpdateRequest;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyAtMapListResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyByContinentResponse;
 import com.erbe.erbebackend.domain.journey.dto.response.JourneyMapPinResponse;
@@ -78,5 +79,32 @@ public class JourneyController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BaseResponse.success(200,"주변 여행 조회 성공", responseList));
+    }
+
+    @Operation(summary = "여행 수정 API", description = "여행을 수정하는 API")
+    @PutMapping("/{journeyId}")
+    public ResponseEntity<BaseResponse<JourneyResponse>> updateJourney(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @RequestBody JourneyUpdateRequest request,
+            @PathVariable Long journeyId
+    ){
+        JourneyResponse response = journeyService.updateJourney(request, journeyId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200,"여행 수정 성공", response));
+    }
+
+    @Operation(summary = "여행 삭제 API", description = "여행을 삭제하는 API")
+    @DeleteMapping("/{journeyId}")
+    public ResponseEntity<BaseResponse<String>> deleteJourney(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long journeyId
+    ){
+        String response = journeyService.deleteJourney(journeyId, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200,"여행 삭제 성공", response));
     }
 }

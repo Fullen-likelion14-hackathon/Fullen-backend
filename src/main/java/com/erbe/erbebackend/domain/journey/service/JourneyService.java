@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.journey.service;
 
 import com.erbe.erbebackend.domain.journey.dto.request.JourneyCreateRequest;
+import com.erbe.erbebackend.domain.journey.dto.request.JourneyUpdateRequest;
 import com.erbe.erbebackend.domain.journey.dto.response.*;
 import com.erbe.erbebackend.domain.journey.entity.Journey;
 import com.erbe.erbebackend.domain.journey.exception.JourneyErrorCode;
@@ -9,6 +10,9 @@ import com.erbe.erbebackend.domain.nation.entity.Nation;
 import com.erbe.erbebackend.domain.nation.enums.Continent;
 import com.erbe.erbebackend.domain.nation.exception.NationErrorCode;
 import com.erbe.erbebackend.domain.nation.repository.NationRepository;
+import com.erbe.erbebackend.domain.post.entity.Post;
+import com.erbe.erbebackend.domain.post.repository.PostRepository;
+import com.erbe.erbebackend.domain.post.service.PostService;
 import com.erbe.erbebackend.domain.user.entity.User;
 import com.erbe.erbebackend.domain.user.exception.UserErrorCode;
 import com.erbe.erbebackend.domain.user.repository.UserRepository;
@@ -29,6 +33,8 @@ public class JourneyService {
     private final JourneyRepository journeyRepository;
     private final UserRepository userRepository;
     private final NationRepository nationRepository;
+    private final PostRepository postRepository;
+    private final PostService postService;
 
     public JourneyResponse findJourneyById(Long id, Long userId) {
 
@@ -193,6 +199,58 @@ public class JourneyService {
 
         // dto 반환
         return response;
+
+    }
+
+    public JourneyResponse updateJourney(JourneyUpdateRequest request, Long journeyId, Long userId){
+
+        log.info("[JourneyService] 여행 수정 시작 - journeyId : {}", journeyId);
+
+        Journey journey = journeyRepository.findById(journeyId).orElseThrow(() -> {
+           log.warn("[JourneyService] 여행을 찾을 수 없습니다 - journeyId : {}", journeyId);
+           return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
+        });
+
+        // 여행 무단 수정 시도시 차단
+        if(!(journey.getUser().getId().equals(userId))){
+            log.warn("[JourneyService] 여행 무단 수정 시도 - journeyId : {}, 무단 시도 userId : {}", journeyId, userId);
+            throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
+        }
+
+        // 여행 업데이트
+        journey.updateJourney(request.getImgUrl(), request.getType(), request.getStartDate(), request.getEndDate());
+
+        return toJourneyResponse(journey);
+
+    }
+
+    public String deleteJourney(Long journeyId, Long userId){
+
+        log.info("[JourneyService] 여행 삭제 시작 - journeyId : {}", journeyId);
+
+        Journey journey = journeyRepository.findById(journeyId).orElseThrow(() -> {
+            log.warn("[JourneyService] 여행을 찾을 수 없습니다 - journeyId : {}", journeyId);
+            return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
+        });
+
+        // 여행 무단 삭제 시도시 차단
+        if(!(journey.getUser().getId().equals(userId))){
+            log.warn("[JourneyService] 여행 무단 삭제 시도 - journeyId : {}, 무단 시도 userId : {}", journeyId, userId);
+            throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
+        }
+
+        // 여행 게시물 목록 모두 가져오기
+        List<Post> postList = postRepository.findAllByJourney(journey);
+
+        // 게시물 하나하나 삭제(사진들 연관관계 존재하기에)
+        for(Post post : postList){
+            postService.deletePost(post.getId(), userId);
+        }
+
+        // 연관 관계 모두 해소했으므로, 여행 삭제
+        journeyRepository.delete(journey);
+
+        return "여행 삭제 성공 - journeyId : " + journeyId;
 
     }
 
