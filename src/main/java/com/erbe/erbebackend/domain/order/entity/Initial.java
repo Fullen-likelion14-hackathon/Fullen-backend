@@ -21,7 +21,7 @@ public class Initial extends BaseTimeEntity {
     @JoinColumn(name = "user_bag_id", nullable = false)
     private UserBag userBag;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String initialPhrase; // 이니셜 문구
 
     @Column(nullable = false, length = 20)
