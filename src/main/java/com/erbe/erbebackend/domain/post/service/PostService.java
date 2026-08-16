@@ -6,9 +6,11 @@ import com.erbe.erbebackend.domain.journey.repository.JourneyRepository;
 import com.erbe.erbebackend.domain.nation.entity.Nation;
 import com.erbe.erbebackend.domain.nation.exception.NationErrorCode;
 import com.erbe.erbebackend.domain.nation.repository.NationRepository;
+import com.erbe.erbebackend.domain.photo.dto.response.PhotoResponse;
 import com.erbe.erbebackend.domain.photo.entity.Photo;
 import com.erbe.erbebackend.domain.photo.repository.PhotoRepository;
 import com.erbe.erbebackend.domain.post.dto.request.PostCreateRequest;
+import com.erbe.erbebackend.domain.post.dto.request.PostUpdateRequest;
 import com.erbe.erbebackend.domain.post.dto.response.PostCardResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostPreviewResponse;
 import com.erbe.erbebackend.domain.post.dto.response.PostResponse;
@@ -220,6 +222,81 @@ public class PostService {
         return responseList;
     }
 
+    public PostResponse updatePost(PostUpdateRequest request, Long postId, Long userId){
+
+        List<String> imgUrlList = request.getImgUrlList();
+
+        log.info("[PostService] 게시물 수정 시작 - postId={}, userId={}", postId, userId);
+
+        // 게시물 일단 조회
+        Post post = postRepository.findById(postId).orElseThrow(() -> {
+            log.warn("[PostService] 게시물을 찾을 수 없습니다 - postId: {}", postId);
+            return new CustomException(PostErrorCode.POST_NOT_FOUND);
+        });
+
+        // 게시물 무단 수정 시도일 경우 차단
+        if(!(post.getUser().getId().equals(userId))){
+            log.warn("[PostService] 게시물 무단 수정 시도 - postId : {}, 무단 수정 시도 userId: {}", postId, userId);
+            throw new CustomException(PostErrorCode.NOT_POST_OWNER);
+        }
+
+        // DB에 원래 저장되어있던 사진
+        List<Photo> originalPhotoList = photoRepository.findAllByPostOrderBySeqAsc(post);
+
+        // 기존 DB에 저장되었던 사진들 삭제
+        photoRepository.deleteAll(originalPhotoList);
+
+        // 넘겨받은 URL 기준으로 다시 저장
+        for(int i = 0; i < imgUrlList.size(); i++){
+            // 만약 업데이트를 요청한 사진이 DB에 이미 존재한다면 그대로 유지하고 진행
+            Photo photo = Photo.builder()
+                    .seq(i)
+                    .imgUrl(imgUrlList.get(i))
+                    .post(post)
+                    .build();
+
+            photoRepository.save(photo);
+        }
+
+        // 게시물 최종 업데이트
+        post.updatePost(request.getComment(), request.getIsPublic(), imgUrlList.getFirst(), imgUrlList.size());
+
+        // DTO 변환
+        PostResponse response = toPostResponse(post);
+
+        return response;
+    }
+
+    // 게시물 삭제 로직
+    public String deletePost(Long postId, Long userId){
+
+        Post post = postRepository.findById(postId).orElseThrow(() -> {
+            log.warn("[PostService] 게시물을 찾을 수 없습니다 - postId: {}", postId);
+            return new CustomException(PostErrorCode.POST_NOT_FOUND);
+        });
+
+        // 게시물 무단 삭제 시도시 예외처리
+        if(!(post.getUser().getId().equals(userId))){
+            log.warn("[PostService] 게시물 무단 삭제 시도 - postId : {} , 무단 삭제 시도 userId: {}", postId, userId);
+            throw new CustomException(PostErrorCode.NOT_POST_OWNER);
+        }
+
+        List<Photo> photoList = photoRepository.findAllByPost(post);
+
+        // 게시물 삭제를 위해 일단, 사진 모두 삭제 하기
+        for(Photo photo : photoList){
+            photoRepository.delete(photo);
+        }
+
+        postRepository.delete(post);
+
+        journeyRepository.incrementPostCount(post.getJourney().getId());
+
+
+
+        return "게시물 삭제 성공 - postId : " + postId;
+    }
+
     // 게시물 미리보기 로직
     public PostPreviewResponse getPostPreview(Long postId, Long userId){
 
@@ -260,15 +337,20 @@ public class PostService {
     // 일반적 게시물 응답 DTO 변환 로직
     private PostResponse toPostResponse(Post post){
 
-        // DTO에 들어갈 Photo URL 리스트 생성
-        List<String> imgUrlList = new ArrayList<>();
+        // DTO에 들어갈 PhotoResponse 리스트 생성
+        List<PhotoResponse> photoResponseList = new ArrayList<>();
 
         // 해당 게시물의 Photo 전부 가져오기
         List<Photo> photoList = photoRepository.findAllByPostOrderBySeqAsc(post);
 
         // Photo 리스트 순회돌며 이미지 URL add
         for(Photo photo : photoList){
-            imgUrlList.add(photo.getImgUrl());
+            PhotoResponse temp = PhotoResponse.builder()
+                    .photoId(photo.getId())
+                    .imgURL(photo.getImgUrl())
+                    .build();
+
+            photoResponseList.add(temp);
         }
 
         // 빌더로 response 생성 후 반환
@@ -278,7 +360,7 @@ public class PostService {
                 .nationKRName(post.getNation().getKrName())
                 .journeyType(post.getJourney().getType())
                 .date(post.getCreatedDate())
-                .imgUrlList(imgUrlList)
+                .photoList(photoResponseList)
                 .comment(post.getComment())
                 .isPublic(post.getIsPublic())
                 .photoCount(post.getPhotoCount())

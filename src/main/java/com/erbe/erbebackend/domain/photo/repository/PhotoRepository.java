@@ -13,4 +13,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findAllByPostOrderBySeqAsc(Post post);
 
     List<Photo> findAllByPostUserOrderById(User postUser);
+
+    List<Photo> findAllByPost(Post post);
 }
