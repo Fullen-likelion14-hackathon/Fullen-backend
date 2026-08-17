@@ -380,7 +380,7 @@ public class OrderService {
 
         // 주문된 이니셜인지 확인
         if (initial.getOrder() != null) {
-            log.warn("[OrderService] 주문된 이니셜은 수정할 수 없습니다.");
+            log.warn("[OrderService] 주문된 이니셜은 삭제할 수 없습니다.");
             throw new CustomException(OrderErrorCode.INITIAL_NOT_EDITABLE);
         }
 
