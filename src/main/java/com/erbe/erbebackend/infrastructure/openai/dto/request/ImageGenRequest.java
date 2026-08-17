@@ -26,4 +26,8 @@ public class ImageGenRequest {
     @NotNull
     @Schema(description = "트래블패치 유형", example = "LABEL")
     private TravelPatchType type;
+
+    @NotNull
+    @Schema(description = "작가 ID", example = "1")
+    private Long artistId;
 }
