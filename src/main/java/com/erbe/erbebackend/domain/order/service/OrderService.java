@@ -7,6 +7,7 @@ import com.erbe.erbebackend.domain.bag.entity.UserBag;
 import com.erbe.erbebackend.domain.bag.exception.UserBagErrorCode;
 import com.erbe.erbebackend.domain.bag.repository.UserBagRepository;
 import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
+import com.erbe.erbebackend.domain.order.dto.request.InitialUpdateRequest;
 import com.erbe.erbebackend.domain.order.dto.request.OrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.*;
@@ -325,5 +326,41 @@ public class OrderService {
         log.info("[OrderService] 이니셜 조회 성공");
 
         return list;
+    }
+
+    // 이니셜 수정
+    @Transactional
+    public InitialApplyResponse updateInitial(InitialUpdateRequest request, Long userId, Long initialId) {
+
+        // 이니셜이 존재하는지 조회
+        Initial initial = initialRepository.findById(initialId)
+                .orElseThrow(() -> new CustomException(OrderErrorCode.INITIAL_NOT_FOUND));
+
+        // 사용자 본인 소유 가방인지 조회
+        if (!initial.getUserBag().getUser().getId().equals(userId)) {
+            log.warn("[OrderService] 사용자 본인 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 주문된 이니셜인지 확인
+        if (initial.getOrder() != null) {
+            log.warn("[OrderService] 주문된 이니셜은 수정할 수 없습니다.");
+            throw new CustomException(OrderErrorCode.INITIAL_NOT_EDITABLE);
+        }
+
+        // 이니셜 수정
+        initial.updateInitial(request.getColor(), request.getIsBold());
+
+        // 로그 출력
+        log.info("[OrderService] 이니셜 수정 성공: initialId={}", initialId);
+
+        // 응답 세팅
+        return InitialApplyResponse.builder()
+                .initialId(initial.getId())
+                .userBagId(initial.getUserBag().getId())
+                .initialPhrase(initial.getInitialPhrase())
+                .color(initial.getColor())
+                .isBold(initial.isBold())
+                .build();
     }
 }

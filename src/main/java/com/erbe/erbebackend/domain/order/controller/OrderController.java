@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.order.controller;
 
 import com.erbe.erbebackend.domain.order.dto.request.InitialApplyRequest;
+import com.erbe.erbebackend.domain.order.dto.request.InitialUpdateRequest;
 import com.erbe.erbebackend.domain.order.dto.request.OrderRequest;
 import com.erbe.erbebackend.domain.order.dto.request.PremiumOrderRequest;
 import com.erbe.erbebackend.domain.order.dto.response.*;
@@ -107,5 +108,20 @@ public class OrderController {
 
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "이니셜 조회 성공", response));
+    }
+
+    // 이니셜 수정
+    @Operation(summary = "이니셜 수정 API", description = "가방에 달린 이니셜을 색상과 볼드를 수정하는 API")
+    @PutMapping("/orders/initials/{initial-id}")
+    public ResponseEntity<BaseResponse<InitialApplyResponse>> updateInitial(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody InitialUpdateRequest request,
+            @PathVariable("initial-id") Long initialId) {
+
+        // service 호출
+        InitialApplyResponse response = orderService.updateInitial(request, userDetails.getId(), initialId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "이니셜 수정 성공", response));
     }
 }
