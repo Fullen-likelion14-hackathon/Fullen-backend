@@ -38,4 +38,10 @@ public class Initial extends BaseTimeEntity {
     public void confirmOrder(Order order) {
         this.order = order;
     }
+
+    // 이니셜 수정
+    public void updateInitial(String color, boolean isBold) {
+        this.color = color;
+        this.isBold = isBold;
+    }
 }
