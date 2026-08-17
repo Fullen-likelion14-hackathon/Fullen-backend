@@ -171,7 +171,7 @@ public class OpenAiTravelAnalysisService {
            }
     """;
 
-        String additionalInformation = "";
+        String additionalInformation = "user_modified_detail : " + request.getRequest() + " / ";
 
         List<Journey> journeyList = journeyRepository.findAllByUser(user).orElseThrow(() -> {
             log.warn("[OpenAiTravelAnalysisService] 여행을 찾을 수 없습니다.");

@@ -45,7 +45,7 @@ public class AiController {
     @PostMapping("/analysis/retry")
     public ResponseEntity<BaseResponse<AnalysisResponse>> getTravelAnalysisRE(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody ReAnalysisRequest request
+            @Valid @RequestBody ReAnalysisRequest request
             ){
         AnalysisResponse answer = travelAnalysisService.reAnalyze(request, customUserDetails.getId());
 
