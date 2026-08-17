@@ -43,7 +43,7 @@ public class PhotoService {
         if(scope != null){
             photos = photoRepository.findAllByPostNationContinentAndPostUserOrderByPostCreatedDate(scope, user);
         }  else {
-            photos = photoRepository.findAllByPostUser(user);
+            photos = photoRepository.findAllByPostUserOrderByPostCreatedDate(user);
         }
 
         List<PhotoResponse> responseList = new ArrayList<>();

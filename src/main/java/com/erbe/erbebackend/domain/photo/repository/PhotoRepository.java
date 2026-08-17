@@ -17,5 +17,5 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     List<Photo> findAllByPostNationContinentAndPostUserOrderByPostCreatedDate(Continent scope, User user);
 
-    List<Photo> findAllByPostUser(User postUser);
+    List<Photo> findAllByPostUserOrderByPostCreatedDate(User postUser);
 }
