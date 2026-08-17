@@ -44,7 +44,7 @@ public class PhotoController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long photoId
     ){
-        PhotoDetailResponse response = photoService.getPhotoDetail(customUserDetails.getId(), photoId);
+        PhotoDetailResponse response = photoService.getPhotoDetail(photoId, customUserDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
