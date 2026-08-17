@@ -1,5 +1,7 @@
 package com.erbe.erbebackend.domain.photo.controller;
 
+import com.erbe.erbebackend.domain.nation.enums.Continent;
+import com.erbe.erbebackend.domain.photo.dto.response.PhotoDetailResponse;
 import com.erbe.erbebackend.domain.photo.dto.response.PhotoResponse;
 import com.erbe.erbebackend.domain.photo.service.PhotoService;
 import com.erbe.erbebackend.global.common.BaseResponse;
@@ -25,14 +27,28 @@ public class PhotoController {
     @GetMapping("/photos")
     @Operation(summary = "유저별 사진 전체 조회 API", description = "유저의 모든 사진을 조회하는 API입니다.")
     public ResponseEntity<BaseResponse<List<PhotoResponse>>> getUserPhoto(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam(required = false) Continent scope
             ){
 
-        List<PhotoResponse> responseList = photoService.getUserPhoto(customUserDetails.getId());
+        List<PhotoResponse> responseList = photoService.getUserPhoto(scope, customUserDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BaseResponse.success(200, "유저 기반 사진 전체 조회 성공", responseList));
+    }
+
+    @GetMapping("/photos/{photoId}")
+    @Operation(summary = "사진 조회 API", description = "사진 상세 조회 API입니다.")
+    public ResponseEntity<BaseResponse<PhotoDetailResponse>> getPhotoDetail(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long photoId
+    ){
+        PhotoDetailResponse response = photoService.getPhotoDetail(customUserDetails.getId(), photoId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "사진 상세 조회 성공", response));
     }
 
     @DeleteMapping("/photos/{photoId}")

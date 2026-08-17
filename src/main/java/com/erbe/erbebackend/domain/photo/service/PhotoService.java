@@ -1,5 +1,7 @@
 package com.erbe.erbebackend.domain.photo.service;
 
+import com.erbe.erbebackend.domain.nation.enums.Continent;
+import com.erbe.erbebackend.domain.photo.dto.response.PhotoDetailResponse;
 import com.erbe.erbebackend.domain.photo.dto.response.PhotoResponse;
 import com.erbe.erbebackend.domain.photo.entity.Photo;
 import com.erbe.erbebackend.domain.photo.exception.PhotoErrorCode;
@@ -27,7 +29,7 @@ public class PhotoService {
     private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
 
-    public List<PhotoResponse> getUserPhoto(Long userId){
+    public List<PhotoResponse> getUserPhoto(Continent scope, Long userId){
 
         log.info("[PhotoService] 유저 기반 사진 전체 조회 시작 - userId ={}", userId);
 
@@ -36,7 +38,13 @@ public class PhotoService {
             return new CustomException(UserErrorCode.USER_NOT_FOUND);
         });
 
-        List<Photo> photos = photoRepository.findAllByPostUserOrderById(user);
+        List<Photo> photos = new ArrayList<>();
+
+        if(scope != null){
+            photos = photoRepository.findAllByPostNationContinentAndPostUserOrderByPostCreatedDate(scope, user);
+        }  else {
+            photos = photoRepository.findAllByPostUser(user);
+        }
 
         List<PhotoResponse> responseList = new ArrayList<>();
 
@@ -48,6 +56,32 @@ public class PhotoService {
         log.info("[PhotoService] 유저 기반 사진 전체 조회 종료 - photo count = {}", responseList.size());
 
         return responseList;
+    }
+
+    public PhotoDetailResponse getPhotoDetail(Long photoId, Long userId){
+
+        Photo photo = photoRepository.findById(photoId).orElseThrow(() -> {
+            log.warn("[PhotoService] 사진이 존재하지 않습니다 - photoId : {}", photoId);
+            return new CustomException(PhotoErrorCode.PHOTO_NOT_FOUND);
+        });
+
+        // 사진 무단 조회 시도시 차단
+        if(!(photo.getPost().getUser().getId().equals(userId))){
+            log.warn("[PhotoService] 사진 무단 조회 시도 - photoId : {}, 무단 시도 userId : {}", photoId, userId);
+            throw new CustomException(PhotoErrorCode.PHOTO_ACCESS_DENIED);
+        }
+
+        return toPhotoDetailResponse(photo);
+    }
+
+    private PhotoDetailResponse toPhotoDetailResponse(Photo photo){
+        return PhotoDetailResponse.builder()
+                .photoId(photo.getId())
+                .imgURL(photo.getImgUrl())
+                .nationKRName(photo.getPost().getNation().getKrName())
+                .journeyType(photo.getPost().getJourney().getType())
+                .date(photo.getPost().getCreatedDate())
+                .build();
     }
 
     private PhotoResponse toPhotoResponse(Photo photo){

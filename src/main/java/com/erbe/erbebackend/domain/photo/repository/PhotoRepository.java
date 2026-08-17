@@ -1,5 +1,6 @@
 package com.erbe.erbebackend.domain.photo.repository;
 
+import com.erbe.erbebackend.domain.nation.enums.Continent;
 import com.erbe.erbebackend.domain.photo.entity.Photo;
 import com.erbe.erbebackend.domain.post.entity.Post;
 import com.erbe.erbebackend.domain.user.entity.User;
@@ -12,7 +13,9 @@ import java.util.List;
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findAllByPostOrderBySeqAsc(Post post);
 
-    List<Photo> findAllByPostUserOrderById(User postUser);
-
     List<Photo> findAllByPost(Post post);
+
+    List<Photo> findAllByPostNationContinentAndPostUserOrderByPostCreatedDate(Continent scope, User user);
+
+    List<Photo> findAllByPostUser(User postUser);
 }
