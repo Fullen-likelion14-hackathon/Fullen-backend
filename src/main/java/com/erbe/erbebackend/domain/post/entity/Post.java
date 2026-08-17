@@ -2,6 +2,8 @@ package com.erbe.erbebackend.domain.post.entity;
 
 import com.erbe.erbebackend.domain.journey.entity.Journey;
 import com.erbe.erbebackend.domain.nation.entity.Nation;
+import com.erbe.erbebackend.domain.user.entity.User;
+import com.erbe.erbebackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +15,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Post {
+public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +28,12 @@ public class Post {
 
     private LocalDate createdDate;
 
+    private int photoCount;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @ManyToOne
     @JoinColumn(name = "nation_id")
     private Nation nation;
@@ -33,4 +41,11 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "journey_id")
     private Journey journey;
+
+    public void updatePost(String comment, Boolean isPublic, String imgUrl, int photoCount){
+        this.comment = comment;
+        this.isPublic = isPublic;
+        this.imgUrl = imgUrl;
+        this.photoCount = photoCount;
+    }
 }

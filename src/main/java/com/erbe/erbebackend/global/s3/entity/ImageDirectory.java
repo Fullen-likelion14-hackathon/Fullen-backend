@@ -8,5 +8,11 @@ public enum ImageDirectory {
     FEED,
 
     @Schema(description = "AI 트래블 패치 생성용 사진")
-    TRAVEL_PATCH
+    TRAVEL_PATCH,
+
+    @Schema(description = "나라별 국기")
+    NATION,
+
+    @Schema(description = "작가")
+    ARTIST;
 }

@@ -21,8 +21,6 @@ public class Photo {
 
     private String imgUrl;
 
-    private Point location;
-
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
