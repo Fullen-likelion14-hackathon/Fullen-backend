@@ -1,5 +1,6 @@
 package com.erbe.erbebackend.domain.bag.controller;
 
+import com.erbe.erbebackend.domain.bag.dto.response.UserBagDetailResponse;
 import com.erbe.erbebackend.domain.bag.dto.response.UserBagListResponse;
 import com.erbe.erbebackend.domain.bag.service.BagService;
 import com.erbe.erbebackend.global.common.BaseResponse;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,5 +37,19 @@ public class BagController {
 
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "사용자가 소유한 가방 리스트 조회 성공", response));
+    }
+
+    // 사용자 소유 가방 상세조회
+    @Operation(summary = "소유한 가방 상세조회 API", description = "사용자가 소유한 가방 하나를 상세 조회하는 API")
+    @GetMapping("/bags/{bag-id}")
+    public ResponseEntity<BaseResponse<UserBagDetailResponse>> userBagDetail(
+            @PathVariable("bag-id") Long bagId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // service 호출
+        UserBagDetailResponse response = bagService.findUserBagDetail(bagId, userDetails.getId());
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "사용자가 소유한 가방 상세조회 성공", response));
     }
 }
