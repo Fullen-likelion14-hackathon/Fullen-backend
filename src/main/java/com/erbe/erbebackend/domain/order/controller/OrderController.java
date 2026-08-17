@@ -124,4 +124,18 @@ public class OrderController {
         // 응답 반환
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "이니셜 수정 성공", response));
     }
+
+    // 이니셜 삭제
+    @Operation(summary = "이니셜 삭제 API", description = "사용자가 주문 전 가방에 달린 이니셜을 삭제하는 API")
+    @DeleteMapping("/orders/initials/{initial-id}")
+    public ResponseEntity<BaseResponse<Void>> deleteInitial(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("initial-id") Long initialId) {
+
+        // service 호출
+        orderService.deleteInitial(userDetails.getId(), initialId);
+
+        // 응답 반환
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(200, "이니셜 삭제 성공", null));
+    }
 }

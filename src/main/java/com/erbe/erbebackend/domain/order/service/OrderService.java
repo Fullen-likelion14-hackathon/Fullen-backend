@@ -363,4 +363,31 @@ public class OrderService {
                 .isBold(initial.isBold())
                 .build();
     }
+
+    // 이니셜 삭제
+    @Transactional
+    public void deleteInitial(Long userId, Long initialId) {
+
+        // 이니셜이 존재하는지 조회
+        Initial initial = initialRepository.findById(initialId)
+                .orElseThrow(() -> new CustomException(OrderErrorCode.INITIAL_NOT_FOUND));
+
+        // 사용자 본인 소유 가방인지 조회
+        if (!initial.getUserBag().getUser().getId().equals(userId)) {
+            log.warn("[OrderService] 사용자 본인 가방이 아닙니다.");
+            throw new CustomException(UserBagErrorCode.USER_BAG_ACCESS_DENIED);
+        }
+
+        // 주문된 이니셜인지 확인
+        if (initial.getOrder() != null) {
+            log.warn("[OrderService] 주문된 이니셜은 수정할 수 없습니다.");
+            throw new CustomException(OrderErrorCode.INITIAL_NOT_EDITABLE);
+        }
+
+        // DB 삭제
+        initialRepository.delete(initial);
+
+        // 로그 출력
+        log.info("[OrderService] 이니셜 삭제 성공: initialId={}", initialId);
+    }
 }
