@@ -3,6 +3,7 @@ package com.erbe.erbebackend.infrastructure.openai.controller;
 import com.erbe.erbebackend.global.common.BaseResponse;
 import com.erbe.erbebackend.global.security.CustomUserDetails;
 import com.erbe.erbebackend.infrastructure.openai.dto.request.ImageGenRequest;
+import com.erbe.erbebackend.infrastructure.openai.dto.request.ReAnalysisRequest;
 import com.erbe.erbebackend.infrastructure.openai.dto.response.AnalysisResponse;
 import com.erbe.erbebackend.infrastructure.openai.dto.response.ImageGenResponse;
 import com.erbe.erbebackend.infrastructure.openai.service.OpenAiImageGenService;
@@ -33,11 +34,24 @@ public class AiController {
     public ResponseEntity<BaseResponse<AnalysisResponse>> getTravelAnalysis(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
             ){
-        String answer = travelAnalysisService.getResult(customUserDetails.getId());
+        AnalysisResponse answer = travelAnalysisService.getResult(customUserDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(BaseResponse.success(200, "여행 분석 완료", AnalysisResponse.of(answer)));
+                .body(BaseResponse.success(200, "여행 분석 완료", answer));
+    }
+
+    @Operation(summary = "여행 재분석 API", description = "유저의 기존 분석 결과를 수정하여 분석 재요청하는 API")
+    @PostMapping("/analysis/retry")
+    public ResponseEntity<BaseResponse<AnalysisResponse>> getTravelAnalysisRE(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody ReAnalysisRequest request
+            ){
+        AnalysisResponse answer = travelAnalysisService.reAnalyze(request, customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "여행 분석 완료", answer));
     }
 
     @Operation(summary = "트래블패치 생성 API", description = "유저가 선택한 사진을 기반으로 트래블패치를 제작하는 API")
