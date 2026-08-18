@@ -72,6 +72,8 @@ public class BagService {
                 .bagSize(userBag.getBagProduct().getBag().getSize())
                 .bagFrontImgUrl(userBag.getBagProduct().getBag().getFrontImgUrl())
                 .bagBackImgUrl(userBag.getBagProduct().getBag().getBackImgUrl())
+                .serialNumber(userBag.getBagProduct().getSerialNumber())
+                .useStartDate(userBag.getUseStartDate())
                 .build();
     }
 }
