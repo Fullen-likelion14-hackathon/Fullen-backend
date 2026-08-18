@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -27,4 +29,10 @@ public class UserBagDetailResponse {
 
     @Schema(description = "가방 뒷면 사진", example = "https://s3.aws.com/bag/back.png")
     private String bagBackImgUrl;
+
+    @Schema(description = "시리얼 번호", example = "SN-TEST-0001")
+    private String serialNumber;
+
+    @Schema(description = "등록일", example = "2026-08-18")
+    private LocalDate useStartDate;
 }
