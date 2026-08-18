@@ -324,6 +324,7 @@ public class JourneyService {
                 .startDate(journey.getStartDate())
                 .endDate(journey.getEndDate())
                 .flagImgUrl(journey.getNation().getImgUrl())
+                .postCount(journey.getPostCount())
                 .build();
     }
 

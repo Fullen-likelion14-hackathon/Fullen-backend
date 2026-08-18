@@ -37,4 +37,7 @@ public class JourneyResponse {
 
     @Schema(description = "국기 이미지 URL", example = "https://s3.aws.com/testURL1")
     private String flagImgUrl;
+
+    @Schema(description = "게시물 개수", example = "3")
+    private int postCount;
 }
