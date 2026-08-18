@@ -47,7 +47,7 @@ public class JourneyService {
         });
 
         // 본인의 여행이 아닌 다른 사람의 여행을 조회하려하면 X
-        if(Objects.equals(journey.getUser().getId(), userId)) {
+        if(!(journey.getUser().getId().equals(userId))) {
             log.warn("[JourneyService] 여행 조회 실패 - 타인 여행 조회 시도 journeyId : {}, userId: {}", id, userId);
             throw new CustomException(JourneyErrorCode.NOT_JOURNEY_OWNER);
         }
