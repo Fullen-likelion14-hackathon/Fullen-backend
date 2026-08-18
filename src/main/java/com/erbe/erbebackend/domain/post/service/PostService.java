@@ -290,7 +290,7 @@ public class PostService {
 
         postRepository.delete(post);
 
-        journeyRepository.incrementPostCount(post.getJourney().getId());
+        journeyRepository.decrementPostCount(post.getJourney().getId());
 
 
 
