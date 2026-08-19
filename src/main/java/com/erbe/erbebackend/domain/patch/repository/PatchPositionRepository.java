@@ -17,4 +17,7 @@ public interface PatchPositionRepository extends JpaRepository<PatchPosition, Lo
 
     // 가방에서 주문이 안된 패치 위치 조회 (patch가 실제로 존재하는 것만 조회 -> 1:1 커스텀 요청 패치는 null이기 때문에 자동으로 제외)
     List<PatchPosition> findAllByUserBagAndIsEditableTrueAndPatchIsNotNull(UserBag userBag);
+
+    // 가방에 부착된 패치 조회
+    List<PatchPosition> findAllByUserBagAndPatchIsNotNull(UserBag userBag);
 }

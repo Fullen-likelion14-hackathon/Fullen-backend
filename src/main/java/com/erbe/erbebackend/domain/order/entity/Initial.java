@@ -1,6 +1,7 @@
 package com.erbe.erbebackend.domain.order.entity;
 
 import com.erbe.erbebackend.domain.bag.entity.UserBag;
+import com.erbe.erbebackend.domain.bag.enums.BagSide;
 import com.erbe.erbebackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,22 @@ public class Initial extends BaseTimeEntity {
 
     @Column(nullable = false)
     private boolean isBold; // 굵기 여부 (true : 굵게, false : 기본)
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private BagSide side; // 이니셜이 부착된 면(앞/뒤)
+
+    @Column(nullable = false)
+    private Double posX; // x 좌표
+
+    @Column(nullable = false)
+    private Double posY; // y 좌표
+
+    @Column(nullable = false)
+    private Double rotation; // 각도
+
+    @Column(nullable = false)
+    private Double scale; // 이니셜 크기 배율
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")

@@ -157,6 +157,8 @@ public class OrderService {
                 .posX(request.getPosX())
                 .posY(request.getPosY())
                 .rotation(request.getRotation())
+                .scale(1.0) // 1:1 커스텀은 사용자가 크기 조절을 못하기 때문에 배율을 1.0으로 해서 기본값으로 설정
+                .flipped(false) // 1:1 커스텀은 좌우반전을 못하기 때문에 기본값으로 설정
                 .build();
 
         // 패치 위치 DB 저장
@@ -240,6 +242,11 @@ public class OrderService {
                 .initialPhrase(request.getInitialPhrase())
                 .color(request.getColor())
                 .isBold(request.getIsBold())
+                .side(request.getSide())
+                .posX(request.getPosX())
+                .posY(request.getPosY())
+                .rotation(request.getRotation())
+                .scale(request.getScale())
                 .build();
 
         // DB 저장
@@ -255,6 +262,11 @@ public class OrderService {
                 .initialPhrase(initial.getInitialPhrase())
                 .color(initial.getColor())
                 .isBold(initial.isBold())
+                .side(initial.getSide())
+                .posX(initial.getPosX())
+                .posY(initial.getPosY())
+                .rotation(initial.getRotation())
+                .scale(initial.getScale())
                 .build();
     }
 
@@ -319,6 +331,11 @@ public class OrderService {
                     .initialPhrase(initial.getInitialPhrase())
                     .color(initial.getColor())
                     .isBold(initial.isBold())
+                    .side(initial.getSide())
+                    .posX(initial.getPosX())
+                    .posY(initial.getPosY())
+                    .rotation(initial.getRotation())
+                    .scale(initial.getScale())
                     .build());
         }
 
@@ -361,6 +378,11 @@ public class OrderService {
                 .initialPhrase(initial.getInitialPhrase())
                 .color(initial.getColor())
                 .isBold(initial.isBold())
+                .side(initial.getSide())
+                .posX(initial.getPosX())
+                .posY(initial.getPosY())
+                .rotation(initial.getRotation())
+                .scale(initial.getScale())
                 .build();
     }
 

@@ -38,6 +38,12 @@ public class PatchApplyResponse {
     @Schema(description = "회전 각도", example = "0.0")
     private Double rotation;
 
+    @Schema(description = "패치 크기 배율", example = "0.8")
+    private Double scale;
+
+    @Schema(description = "좌우 반전 여부", example = "false")
+    private Boolean flipped;
+
     @Schema(description = "수정 여부", example = "true")
     private Boolean isEditable;
 }
