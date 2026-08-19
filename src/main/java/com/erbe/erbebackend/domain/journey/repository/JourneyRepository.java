@@ -27,4 +27,6 @@ public interface JourneyRepository extends JpaRepository<Journey, Long> {
     Journey findTopByUserAndNationContinentOrderByStartDateDesc(User user, Continent nationContinent);
 
     List<Journey> findByUserAndNationContinentOrderByStartDateDesc(User user, Continent continent);
+
+    Optional<Journey> findTopByUserOrderByStartDateDesc(User user);
 }

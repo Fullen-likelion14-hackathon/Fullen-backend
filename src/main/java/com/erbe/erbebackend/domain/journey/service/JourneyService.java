@@ -61,6 +61,25 @@ public class JourneyService {
         return response;
     }
 
+    public Long getRecentJourneyId(Long userId){
+
+        log.info("[JourneyService] 가장 최근 여행 ID 찾기");
+
+        // 유저 객체 가져오기
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("[JourneyService] 유저 조회 실패 - userId: {}", userId);
+            return new CustomException(UserErrorCode.USER_NOT_FOUND);
+        });
+
+        // 유저의 가장 최근 여행 조회
+        Journey journey = journeyRepository.findTopByUserOrderByStartDateDesc(user).orElseThrow(() -> {
+            log.warn("[JourneyService] 여행 조회 실패 - 존재하지 않는 여행");
+            return new CustomException(JourneyErrorCode.JOURNEY_NOT_FOUND);
+        });
+
+        return journey.getId();
+    }
+
     public JourneyByContinentResponse findAllJourneys(Long userId){
 
         log.info("[JourneyService] 모든 여행 조회 - 시작");
@@ -185,6 +204,7 @@ public class JourneyService {
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .coverImgUrl(request.getImgUrl())
+                .firstImgUrl(request.getImgUrl())
                 .nation(nation)
                 .user(user)
                 .longitude(nation.getLongitude())

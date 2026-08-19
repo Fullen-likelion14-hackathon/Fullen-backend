@@ -23,4 +23,10 @@ public class PostCreateRequest {
     @NotEmpty
     @Schema(description = "이미지 URL 리스트", example = "[\"https://s3.aws.com/testURL1\", \"https://s3.aws.com//testURL2\"]")
     private List<String> imgUrlList;
+
+    @Schema(description = "경도")
+    private Double longitude;
+
+    @Schema(description = "위도")
+    private Double latitude;
 }

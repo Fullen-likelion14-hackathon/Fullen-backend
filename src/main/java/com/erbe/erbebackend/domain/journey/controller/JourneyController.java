@@ -38,6 +38,16 @@ public class JourneyController {
                 .body(BaseResponse.success(200, "단일 여행 조회 성공",response));
     }
 
+    @Operation(summary = "단일 여행 조회 API", description = "유저를 기반으로, 가장 최근 여행의 ID를 조회하는 API")
+    @GetMapping("/recent")
+    public ResponseEntity<BaseResponse<Long>> getRecentJourneyId(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long response = journeyService.getRecentJourneyId(customUserDetails.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BaseResponse.success(200, "가장 최근 여행ID 조회 성공",response));
+    }
+
     @Operation(summary = "여행 전체 조회 API", description = "사용자 기반으로, 사용자의 모든 여행 정보를 조회하는 API")
     @GetMapping
     public ResponseEntity<BaseResponse<JourneyByContinentResponse>> getJourneys(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
