@@ -49,6 +49,11 @@ public class Journey extends BaseTimeEntity {
         this.firstImgUrl = firstImageUrl;
     }
 
+    public void updatePos(Double longitude, Double latitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+
     public void updateJourney(String imgUrl, String type, LocalDate startDate, LocalDate endDate) {
         this.coverImgUrl = imgUrl;
         this.type = type;
