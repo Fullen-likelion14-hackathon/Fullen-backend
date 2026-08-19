@@ -66,6 +66,8 @@ public class ArtistService {
                     .artistId(artist.getId())
                     .artistName(artist.getName())
                     .imgUrl(artist.getImgUrl())
+                    .nationImgUrl(artist.getNation().getImgUrl())
+                    .introSummary(artist.getIntroSummary())
                     .build());
         }
 
