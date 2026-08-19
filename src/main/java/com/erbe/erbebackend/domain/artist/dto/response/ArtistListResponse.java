@@ -19,4 +19,10 @@ public class ArtistListResponse {
 
     @Schema(description = "작가 대표 이미지", example = "https://s3.aws.com/testURL1")
     private String imgUrl;
+
+    @Schema(description = "작가 국적 국기 사진", example = "https://s3.aws.com/testURL1")
+    private String nationImgUrl;
+
+    @Schema(description = "작가 소개 한 줄 요약", example = "강렬한 색채와 두꺼운 붓질, 역동적인 곡선으로 감정과 움직임을 표현하는 화풍.")
+    private String introSummary;
 }
