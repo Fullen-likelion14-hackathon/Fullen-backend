@@ -48,15 +48,23 @@ public class PatchPosition extends BaseTimeEntity {
     private Double rotation; // 각도
 
     @Column(nullable = false)
+    private Double scale; // 패치 크기 배율
+
+    @Column(nullable = false)
+    private Boolean flipped; // 좌우 반전 여부
+
+    @Column(nullable = false)
     @Builder.Default
     private Boolean isEditable = true; // 수정 가능 여부 (주문 완료시 false로 변경)
 
     // 패치 위치 업데이트 메서드
-    public void updatePosition(BagSide side, Double posX, Double posY, Double rotation) {
+    public void updatePosition(BagSide side, Double posX, Double posY, Double rotation, Double scale, Boolean flipped) {
         this.side = side;
         this.posX = posX;
         this.posY = posY;
         this.rotation = rotation;
+        this.scale = scale;
+        this.flipped = flipped;
     }
 
     // 주문 확정 (해당 위치를 주문에 포함시키고 수정/삭제 불가 상태로 변경)

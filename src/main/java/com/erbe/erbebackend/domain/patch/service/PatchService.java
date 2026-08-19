@@ -155,6 +155,8 @@ public class PatchService {
                 .posX(request.getPosX())
                 .posY(request.getPosY())
                 .rotation(request.getRotation())
+                .scale(request.getScale())
+                .flipped(request.getFlipped())
                 .build();
 
         // DB 저장
@@ -173,6 +175,8 @@ public class PatchService {
                 .posX(patchPosition.getPosX())
                 .posY(patchPosition.getPosY())
                 .rotation(patchPosition.getRotation())
+                .scale(patchPosition.getScale())
+                .flipped(patchPosition.getFlipped())
                 .isEditable(patchPosition.getIsEditable())
                 .build();
     }
@@ -192,7 +196,7 @@ public class PatchService {
 
         // 응답 세팅
         List<PatchApplyResponse> list = new ArrayList<>();
-        for (PatchPosition patchPosition : patchPositionRepository.findAllByUserBag(userBag)) {
+        for (PatchPosition patchPosition : patchPositionRepository.findAllByUserBagAndPatchIsNotNull(userBag)) {
             list.add(PatchApplyResponse.builder()
                     .patchPositionId(patchPosition.getId())
                     .userBagId(patchPosition.getUserBag().getId())
@@ -202,6 +206,8 @@ public class PatchService {
                     .posX(patchPosition.getPosX())
                     .posY(patchPosition.getPosY())
                     .rotation(patchPosition.getRotation())
+                    .scale(patchPosition.getScale())
+                    .flipped(patchPosition.getFlipped())
                     .isEditable(patchPosition.getIsEditable())
                     .build());
         }
@@ -233,7 +239,7 @@ public class PatchService {
         }
 
         // 패치 위치 수정
-        patchPosition.updatePosition(request.getSide(), request.getPosX(), request.getPosY(), request.getRotation());
+        patchPosition.updatePosition(request.getSide(), request.getPosX(), request.getPosY(), request.getRotation(), request.getScale(), request.getFlipped());
 
         // 로그 출력
         log.info("[PatchService] 가방에 부착된 패치 위치 수정 완료: patchPositionId={}", patchPosition.getId());
@@ -248,6 +254,8 @@ public class PatchService {
                 .posX(patchPosition.getPosX())
                 .posY(patchPosition.getPosY())
                 .rotation(patchPosition.getRotation())
+                .scale(patchPosition.getScale())
+                .flipped(patchPosition.getFlipped())
                 .isEditable(patchPosition.getIsEditable())
                 .build();
     }
