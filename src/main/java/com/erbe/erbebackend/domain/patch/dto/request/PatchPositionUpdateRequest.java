@@ -28,4 +28,12 @@ public class PatchPositionUpdateRequest {
     @Schema(description = "회전 각도", example = "0.0")
     @NotNull(message = "회전 각도는 필수 입력값입니다.")
     private Double rotation;
+
+    @Schema(description = "패치 크기 배율", example = "0.8")
+    @NotNull(message = "크기 배율은 필수 입력값입니다.")
+    private Double scale;
+
+    @Schema(description = "좌우 반전 여부", example = "false")
+    @NotNull(message = "좌우 반전 여부는 필수 입력값입니다.")
+    private Boolean flipped;
 }
