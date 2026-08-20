@@ -159,6 +159,7 @@ public class OrderService {
                 .rotation(request.getRotation())
                 .scale(1.0) // 1:1 커스텀은 사용자가 크기 조절을 못하기 때문에 배율을 1.0으로 해서 기본값으로 설정
                 .flipped(false) // 1:1 커스텀은 좌우반전을 못하기 때문에 기본값으로 설정
+                .layer(0) // 1:1 커스텀은 레이어 순서 개념 없기 때문에 기본값으로 설정
                 .build();
 
         // 패치 위치 DB 저장
@@ -247,6 +248,7 @@ public class OrderService {
                 .posY(request.getPosY())
                 .rotation(request.getRotation())
                 .scale(request.getScale())
+                .layer(request.getLayer())
                 .build();
 
         // DB 저장
@@ -267,6 +269,7 @@ public class OrderService {
                 .posY(initial.getPosY())
                 .rotation(initial.getRotation())
                 .scale(initial.getScale())
+                .layer(initial.getLayer())
                 .build();
     }
 
@@ -336,6 +339,7 @@ public class OrderService {
                     .posY(initial.getPosY())
                     .rotation(initial.getRotation())
                     .scale(initial.getScale())
+                    .layer(initial.getLayer())
                     .build());
         }
 
@@ -366,7 +370,7 @@ public class OrderService {
         }
 
         // 이니셜 수정
-        initial.updateInitial(request.getColor(), request.getIsBold(), request.getSide(), request.getPosX(), request.getPosY(), request.getRotation(), request.getScale());
+        initial.updateInitial(request.getColor(), request.getIsBold(), request.getSide(), request.getPosX(), request.getPosY(), request.getRotation(), request.getScale(), request.getLayer());
 
         // 로그 출력
         log.info("[OrderService] 이니셜 수정 성공: initialId={}", initialId);
@@ -383,6 +387,7 @@ public class OrderService {
                 .posY(initial.getPosY())
                 .rotation(initial.getRotation())
                 .scale(initial.getScale())
+                .layer(initial.getLayer())
                 .build();
     }
 

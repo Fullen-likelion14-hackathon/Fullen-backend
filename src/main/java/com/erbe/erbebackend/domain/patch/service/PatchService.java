@@ -157,6 +157,7 @@ public class PatchService {
                 .rotation(request.getRotation())
                 .scale(request.getScale())
                 .flipped(request.getFlipped())
+                .layer(request.getLayer())
                 .build();
 
         // DB 저장
@@ -177,6 +178,7 @@ public class PatchService {
                 .rotation(patchPosition.getRotation())
                 .scale(patchPosition.getScale())
                 .flipped(patchPosition.getFlipped())
+                .layer(patchPosition.getLayer())
                 .isEditable(patchPosition.getIsEditable())
                 .build();
     }
@@ -208,6 +210,7 @@ public class PatchService {
                     .rotation(patchPosition.getRotation())
                     .scale(patchPosition.getScale())
                     .flipped(patchPosition.getFlipped())
+                    .layer(patchPosition.getLayer())
                     .isEditable(patchPosition.getIsEditable())
                     .build());
         }
@@ -239,7 +242,7 @@ public class PatchService {
         }
 
         // 패치 위치 수정
-        patchPosition.updatePosition(request.getSide(), request.getPosX(), request.getPosY(), request.getRotation(), request.getScale(), request.getFlipped());
+        patchPosition.updatePosition(request.getSide(), request.getPosX(), request.getPosY(), request.getRotation(), request.getScale(), request.getFlipped(), request.getLayer());
 
         // 로그 출력
         log.info("[PatchService] 가방에 부착된 패치 위치 수정 완료: patchPositionId={}", patchPosition.getId());
@@ -256,6 +259,7 @@ public class PatchService {
                 .rotation(patchPosition.getRotation())
                 .scale(patchPosition.getScale())
                 .flipped(patchPosition.getFlipped())
+                .layer(patchPosition.getLayer())
                 .isEditable(patchPosition.getIsEditable())
                 .build();
     }
