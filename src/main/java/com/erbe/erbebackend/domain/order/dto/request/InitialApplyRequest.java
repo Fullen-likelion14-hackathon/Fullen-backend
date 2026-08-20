@@ -51,4 +51,8 @@ public class InitialApplyRequest {
     @Schema(description = "이니셜 크기 배율", example = "0.8")
     @NotNull(message = "크기 배율은 필수 입력값입니다.")
     private Double scale;
+
+    @Schema(description = "겹칠 때 표시 순서 (클수록 위)", example = "1")
+    @NotNull(message = "레이어 값은 필수 입력값입니다.")
+    private Integer layer;
 }

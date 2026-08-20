@@ -47,6 +47,9 @@ public class Initial extends BaseTimeEntity {
     @Column(nullable = false)
     private Double scale; // 이니셜 크기 배율
 
+    @Column(nullable = false)
+    private Integer layer; // 겹칠 때 위에 표시되는 순서 (클수록 위)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order; // null이면 아직 주문 안 된 이니셜
@@ -57,7 +60,7 @@ public class Initial extends BaseTimeEntity {
     }
 
     // 이니셜 수정
-    public void updateInitial(String color, boolean isBold,  BagSide side, Double posX, Double posY, Double rotation, Double scale) {
+    public void updateInitial(String color, boolean isBold, BagSide side, Double posX, Double posY, Double rotation, Double scale, Integer layer) {
         this.color = color;
         this.isBold = isBold;
         this.side = side;
@@ -65,5 +68,6 @@ public class Initial extends BaseTimeEntity {
         this.posY = posY;
         this.rotation = rotation;
         this.scale = scale;
+        this.layer = layer;
     }
 }

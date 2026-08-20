@@ -36,4 +36,8 @@ public class PatchPositionUpdateRequest {
     @Schema(description = "좌우 반전 여부", example = "false")
     @NotNull(message = "좌우 반전 여부는 필수 입력값입니다.")
     private Boolean flipped;
+
+    @Schema(description = "겹칠 때 표시 순서 (클수록 위)", example = "1")
+    @NotNull(message = "레이어 값은 필수 입력값입니다.")
+    private Integer layer;
 }
