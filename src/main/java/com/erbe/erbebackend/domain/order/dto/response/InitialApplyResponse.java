@@ -43,4 +43,7 @@ public class InitialApplyResponse {
 
     @Schema(description = "이니셜 크기 배율", example = "0.8")
     private Double scale;
+
+    @Schema(description = "겹칠 때 표시 순서 (클수록 위)", example = "1")
+    private Integer layer;
 }

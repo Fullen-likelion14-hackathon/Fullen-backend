@@ -44,6 +44,9 @@ public class PatchApplyResponse {
     @Schema(description = "좌우 반전 여부", example = "false")
     private Boolean flipped;
 
+    @Schema(description = "겹칠 때 표시 순서 (클수록 위)", example = "1")
+    private Integer layer;
+
     @Schema(description = "수정 여부", example = "true")
     private Boolean isEditable;
 }
