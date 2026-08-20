@@ -291,6 +291,7 @@ public class OrderService {
                     .type(OrderType.REGULAR)
                     .orderId(order.getId())
                     .frontImgUrl(order.getUserBag().getBagProduct().getBag().getFrontImgUrl())
+                    .backImgUrl(order.getUserBag().getBagProduct().getBag().getBackImgUrl())
                     .createdAt(order.getCreatedAt())
                     .build());
         }
@@ -301,6 +302,7 @@ public class OrderService {
                     .type(OrderType.PREMIUM)
                     .orderId(premiumOrder.getId())
                     .frontImgUrl(premiumOrder.getPatchPosition().getUserBag().getBagProduct().getBag().getFrontImgUrl())
+                    .backImgUrl(premiumOrder.getPatchPosition().getUserBag().getBagProduct().getBag().getBackImgUrl())
                     .createdAt(premiumOrder.getCreatedAt())
                     .build());
         }
