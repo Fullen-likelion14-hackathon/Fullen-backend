@@ -57,8 +57,13 @@ public class Initial extends BaseTimeEntity {
     }
 
     // 이니셜 수정
-    public void updateInitial(String color, boolean isBold) {
+    public void updateInitial(String color, boolean isBold,  BagSide side, Double posX, Double posY, Double rotation, Double scale) {
         this.color = color;
         this.isBold = isBold;
+        this.side = side;
+        this.posX = posX;
+        this.posY = posY;
+        this.rotation = rotation;
+        this.scale = scale;
     }
 }
