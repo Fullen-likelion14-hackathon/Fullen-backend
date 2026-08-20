@@ -296,8 +296,8 @@ public class OrderService {
             list.add(OrderListResponse.builder()
                     .type(OrderType.REGULAR)
                     .orderId(order.getId())
-                    .frontImgUrl(order.getUserBag().getBagProduct().getBag().getFrontImgUrl())
-                    .backImgUrl(order.getUserBag().getBagProduct().getBag().getBackImgUrl())
+                    .frontImgUrl(order.getCustomFrontImgUrl())
+                    .backImgUrl(order.getCustomBackImgUrl())
                     .createdAt(order.getCreatedAt())
                     .build());
         }
