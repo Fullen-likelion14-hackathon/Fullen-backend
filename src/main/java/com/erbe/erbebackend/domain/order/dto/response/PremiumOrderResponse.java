@@ -44,4 +44,10 @@ public class PremiumOrderResponse {
 
     @Schema(description = "주문 상태", example = "ORDER_COMPLETED")
     private OrderStatus orderStatus;
+
+    @Schema(description = "2D 사진 상 미리보기 x 좌표", example = "0.5")
+    private Double previewX;
+
+    @Schema(description = "2D 사진 상 미리보기 y 좌표", example = "0.5")
+    private Double previewY;
 }

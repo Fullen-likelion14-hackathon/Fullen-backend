@@ -175,6 +175,8 @@ public class OrderService {
                 .patchPosition(patchPosition)
                 .requestDetail(request.getRequestDetail())
                 .orderStatus(OrderStatus.ORDER_COMPLETED)
+                .previewX(request.getPreviewX())
+                .previewY(request.getPreviewY())
                 .build();
 
         // DB 저장
@@ -195,6 +197,8 @@ public class OrderService {
                 .posY(patchPosition.getPosY())
                 .rotation(patchPosition.getRotation())
                 .orderStatus(premiumOrder.getOrderStatus())
+                .previewX(premiumOrder.getPreviewX())
+                .previewY(premiumOrder.getPreviewY())
                 .build();
     }
 
@@ -222,6 +226,8 @@ public class OrderService {
                 .artistImgUrl(premiumOrder.getArtist().getImgUrl())
                 .introSummary(premiumOrder.getArtist().getIntroSummary())
                 .requestDetail(premiumOrder.getRequestDetail())
+                .previewX(premiumOrder.getPreviewX())
+                .previewY(premiumOrder.getPreviewY())
                 .build();
     }
 
