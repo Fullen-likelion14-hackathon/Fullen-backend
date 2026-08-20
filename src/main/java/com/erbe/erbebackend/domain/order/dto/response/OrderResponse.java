@@ -29,9 +29,9 @@ public class OrderResponse {
     @Schema(description = "가방 사이즈", example = "50.5 cm (19.9 in)")
     private String bagSize;
 
-    @Schema(description = "가방 앞면 사진", example = "https://s3.aws.com/bag/front.png")
-    private String bagFrontImgUrl;
+    @Schema(description = "커스텀 적용된 가방 앞면 이미지", example = "https://s3.aws.com/images/custom_front.png")
+    private String customFrontImgUrl;
 
-    @Schema(description = "가방 뒷면 사진", example = "https://s3.aws.com/bag/back.png")
-    private String bagBackImgUrl;
+    @Schema(description = "커스텀 적용된 가방 뒷면 이미지", example = "https://s3.aws.com/images/custom_back.png")
+    private String customBackImgUrl;
 }

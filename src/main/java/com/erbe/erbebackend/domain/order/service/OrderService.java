@@ -87,6 +87,8 @@ public class OrderService {
         Order order = Order.builder()
                 .user(user)
                 .userBag(userBag)
+                .customFrontImgUrl(request.getCustomFrontImgUrl())
+                .customBackImgUrl(request.getCustomBackImgUrl())
                 .orderStatus(OrderStatus.DELIVERED) // 주문하면 배송 완료 상태로 변경
                 .build();
 
@@ -113,8 +115,8 @@ public class OrderService {
                 .orderStatus(order.getOrderStatus())
                 .bagName(userBag.getBagProduct().getBag().getName())
                 .bagSize(userBag.getBagProduct().getBag().getSize())
-                .bagFrontImgUrl(userBag.getBagProduct().getBag().getFrontImgUrl())
-                .bagBackImgUrl(userBag.getBagProduct().getBag().getBackImgUrl())
+                .customFrontImgUrl(order.getCustomFrontImgUrl())
+                .customBackImgUrl(order.getCustomBackImgUrl())
                 .build();
     }
 
