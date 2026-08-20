@@ -16,4 +16,7 @@ public interface PatchRepository extends JpaRepository<Patch, Long> {
 
     // 같은 유저가 같은 이미지를 이미 저장했는지 확인
     boolean existsByUserAndImgUrl(User user, String imgUrl);
+
+    // 삭제 안 된 패치만 목록 조회
+    List<Patch> findAllByUserAndTypeAndIsDeletedFalseOrderByIdDesc(User user, PatchType type);
 }
