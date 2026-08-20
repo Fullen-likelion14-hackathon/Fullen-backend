@@ -25,6 +25,9 @@ public class OrderListResponse {
     @Schema(description = "가방 앞면 사진", example = "https://s3.aws.com/bag/front.png")
     private String frontImgUrl;
 
+    @Schema(description = "가방 뒷면 사진", example = "https://s3.aws.com/bag/back.png")
+    private String backImgUrl;
+
     @Schema(description = "주문일시", example = "2026-08-12T17:11:18")
     private LocalDateTime createdAt;
 }
