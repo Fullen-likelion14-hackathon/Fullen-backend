@@ -366,7 +366,7 @@ public class OrderService {
         }
 
         // 이니셜 수정
-        initial.updateInitial(request.getColor(), request.getIsBold());
+        initial.updateInitial(request.getColor(), request.getIsBold(), request.getSide(), request.getPosX(), request.getPosY(), request.getRotation(), request.getScale());
 
         // 로그 출력
         log.info("[OrderService] 이니셜 수정 성공: initialId={}", initialId);
