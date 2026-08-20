@@ -186,7 +186,7 @@ public class PostService {
     public List<PostCardResponse> getPostsArchive(String scope, Long userId){
 
         // 기준일(현재는 2주전)
-        LocalDate basisDate = LocalDate.now().minusWeeks(2);
+        LocalDate basisDate = LocalDate.now().minusYears(3);
 
         log.info("[PostService] 게시물 아카이브 조회 - 시작");
 
@@ -205,7 +205,7 @@ public class PostService {
             Nation nation = nationRepository.findByEnName(scope).orElseThrow(() -> {
                 log.warn("[PostService] 국가를 찾을 수 없습니다. - nation: {}", scope);
                 return new CustomException(NationErrorCode.NATION_NOT_FOUND);
-            }); // TODO 국가 코드로 요청할지 아님 영문 국가 이름 쓸지 나중에 정하기
+            });
             posts = postRepository.findByUserNotAndIsPublicAndNationAndCreatedDateGreaterThanEqual(user, true, nation, basisDate);
         }
 
