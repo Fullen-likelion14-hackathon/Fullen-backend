@@ -46,4 +46,10 @@ public class PremiumOrder extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private OrderStatus orderStatus;
+
+    @Column(nullable = false)
+    private Double previewX; // 2D 사진 미리보기 x 좌표
+
+    @Column(nullable = false)
+    private Double previewY; // 2D 사진 미리보기 y 좌표
 }

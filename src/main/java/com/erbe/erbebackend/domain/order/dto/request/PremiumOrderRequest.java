@@ -47,4 +47,12 @@ public class PremiumOrderRequest {
     @Schema(description = "회전 각도", example = "0.0")
     @NotNull(message = "회전 각도는 필수 입력값입니다.")
     private Double rotation;
+
+    @Schema(description = "2D 사진 미리보기 x 좌표", example = "0.5")
+    @NotNull(message = "미리보기 x 좌표는 필수 입력값입니다.")
+    private Double previewX;
+
+    @Schema(description = "2D 사진 미리보기 y 좌표", example = "0.5")
+    @NotNull(message = "미리보기 y 좌표는 필수 입력값입니다.")
+    private Double previewY;
 }
