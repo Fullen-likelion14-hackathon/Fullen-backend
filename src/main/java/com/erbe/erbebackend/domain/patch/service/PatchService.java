@@ -82,7 +82,7 @@ public class PatchService {
 
         // 응답 세팅
         List<PatchListResponse> list = new ArrayList<>();
-        for (Patch patch : patchRepository.findAllByUserAndTypeOrderByIdDesc(user, type)) {
+        for (Patch patch : patchRepository.findAllByUserAndTypeAndIsDeletedFalseOrderByIdDesc(user, type)) {
             list.add(PatchListResponse.builder()
                     .patchId(patch.getId())
                     .type(patch.getType())
@@ -96,7 +96,7 @@ public class PatchService {
         return list;
     }
 
-    // 패치 삭제
+    // 패치 삭제 (패치 목록에서 삭, 가방에 적용이 되어 있으면 Soft Delete, 안붙어 있으면 Hard Delete)
     @Transactional
     public void patchDelete(Long patchId, Long userId) {
 
@@ -112,12 +112,22 @@ public class PatchService {
 
         // 패치가 사용중인지 확인
         if (patchPositionRepository.existsByPatch(patch)) {
-            log.warn("[PatchService] 가방에 적용된 패치는 삭제할 수 없습니다.");
-            throw new CustomException(PatchErrorCode.PATCH_IN_USE);
+
+            // 가방에 붙어있으면 Soft Delete
+            patch.softDelete();
+
+            // 로그 출력
+            log.info("[PatchService] 패치 소프트 삭제(가방에 부착중): patchId={}", patchId);
         }
 
-        // DB 삭제
-        patchRepository.delete(patch);
+        else {
+
+            // 가방에 안 붙어있으면 바로 Hard Delete 삭제
+            patchRepository.delete(patch);
+
+            // 로그  출력
+            log.info("[PatchService] 패치 완전삭제: patchId={}", patchId);
+        }
 
         // 로그 출력
         log.info("[PatchService] 패치 삭제 성공");
@@ -284,8 +294,21 @@ public class PatchService {
             throw new CustomException(PatchErrorCode.PATCH_POSITION_NOT_EDITABLE);
         }
 
+        // Patch 객체 생성
+        Patch patch = patchPosition.getPatch();
+
         // DB 삭제
         patchPositionRepository.delete(patchPosition);
+
+        // 내 패치함에서 이미 삭제됐던 패치 + 가방에도 안 붙어있으면 완전삭제
+        if (patch != null && patch.getIsDeleted() && !patchPositionRepository.existsByPatch(patch)) {
+
+            // 패치 DB 삭제
+            patchRepository.delete(patch);
+
+            // 로그 출력
+            log.info("[PatchService] Soft Delete 됐던 패치 Hard Delete: patchId={}", patch.getId());
+        }
 
         // 로그 출력
         log.info("[PatchService] 패치 위치 삭제 성공");

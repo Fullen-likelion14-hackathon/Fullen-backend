@@ -28,4 +28,13 @@ public class Patch extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false; // 내 패치함에서 삭제됐는지 (가방에 붙어있으면 Hard Delete 대신 isDeleted 필드로 Soft Delete)
+
+    // 내 패치함에서 삭제 처리
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 }
