@@ -30,4 +30,10 @@ public class PremiumOrderSearchResponse {
 
     @Schema(description = "사진 설명 및 요청사항", example = "이 사진은 독일의 브란덴부르크문 근처 작은 카페에서 찍은 사진입니다")
     private String requestDetail;
+
+    @Schema(description = "2D 사진 상 미리보기 x 좌표", example = "0.5")
+    private Double previewX;
+
+    @Schema(description = "2D 사진 상 미리보기 y 좌표", example = "0.5")
+    private Double previewY;
 }
