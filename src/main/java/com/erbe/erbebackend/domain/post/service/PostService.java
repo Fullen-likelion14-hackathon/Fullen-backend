@@ -79,7 +79,9 @@ public class PostService {
         그 이미지의 위도 경도를 추출하여, Journey의 위도 경도 값 변경 -> Journey 맵 핀 위치가 첫 사진을 찍은 장소로 변경됨
          */
         if(!isExist){
-            journey.updatePos(request.getLongitude(), request.getLatitude());
+            if(request.getLongitude() != null && request.getLatitude() != null){
+                journey.updatePos(request.getLongitude(), request.getLatitude());
+            }
             journey.updateFirstImageUrl(firstImgURL);
         }
 

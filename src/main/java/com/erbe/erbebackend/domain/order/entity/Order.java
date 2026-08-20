@@ -30,4 +30,10 @@ public class Order extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private OrderStatus orderStatus;
+
+    @Column(nullable = false, length = 300)
+    private String customFrontImgUrl; // 주문된 가방 앞면 사진
+
+    @Column(nullable = false, length = 300)
+    private String customBackImgUrl; // 주문된 가방 뒷면 사진
 }
