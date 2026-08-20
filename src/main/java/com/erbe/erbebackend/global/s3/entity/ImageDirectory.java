@@ -14,5 +14,8 @@ public enum ImageDirectory {
     NATION,
 
     @Schema(description = "작가")
-    ARTIST;
+    ARTIST,
+
+    @Schema(description = "주문 커스텀 캡처 이미지")
+    ORDER
 }
