@@ -1,5 +1,6 @@
 package com.erbe.erbebackend.domain.order.dto.request;
 
+import com.erbe.erbebackend.domain.bag.enums.BagSide;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,4 +21,24 @@ public class InitialUpdateRequest {
     @Schema(description = "볼드 여부(true는 굵게, false는 기본)", example = "true")
     @NotNull(message = "볼드 여부는 필수 입력값입니다.")
     private Boolean isBold;
+
+    @Schema(description = "가방 면 (앞면/뒷면)", example = "FRONT")
+    @NotNull(message = "가방 면은 필수 입력값입니다.")
+    private BagSide side;
+
+    @Schema(description = "x 좌표", example = "1.1")
+    @NotNull(message = "x 좌표는 필수 입력값입니다.")
+    private Double posX;
+
+    @Schema(description = "y 좌표", example = "1.1")
+    @NotNull(message = "y 좌표는 필수 입력값입니다.")
+    private Double posY;
+
+    @Schema(description = "회전 각도", example = "0.0")
+    @NotNull(message = "회전 각도는 필수 입력값입니다.")
+    private Double rotation;
+
+    @Schema(description = "이니셜 크기 배율", example = "0.8")
+    @NotNull(message = "크기 배율은 필수 입력값입니다.")
+    private Double scale;
 }
